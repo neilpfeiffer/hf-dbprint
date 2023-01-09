@@ -1,0 +1,114 @@
+/* Combobox borrowed code */
+div.combobox {
+  font-family: Tahoma, sans-serif;
+  font-size: 12px;
+}
+
+div.combobox {
+  /* display: flex; */
+  position: relative;
+  zoom: 1;
+}
+
+div.combobox div.dropdownlist {
+  display: none;
+  width: 160%;
+  border: solid 1px #cbcbcb;
+  background-color: #fff;
+  height: auto;
+  overflow: auto;
+  position: absolute;
+  left: 0px;
+  top: 26px;
+  /* padding-bottom: 3px; */
+}
+
+div.combobox .dropdownlist a {
+  display: block;
+  text-decoration: none;
+  color: #000;
+  padding: 1px;
+  height: 1em;
+  cursor: default;
+  padding: 3px 5px;
+}
+
+div.combobox .dropdownlist a:last-of-type {
+  margin-bottom: 3px;
+}
+
+div.combobox .dropdownlist p {
+  margin: 0;
+  background: #ebebeb;
+  font-weight: bold;
+  padding: 5px;
+}
+div.combobox .dropdownlist a.light {
+  color: #fff;
+  background-color: #0054e6;
+}
+
+div.combobox .dropdownlist,
+input {
+  font-family: Tahoma;
+  font-size: 12px;
+}
+
+div.combobox input {
+  /* float: left;
+  width: 92.6%; */
+  border: solid 1px #ccc;
+  box-sizing: border-box;
+  /* flex: 1 1 auto; */
+  height: 25px;
+  margin: 0;
+  padding: 0 26px 0 3px;
+  position: absolute;
+  width: 100%;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+div.combobox span {
+  background: #eee;
+  border: solid 1px #ccc;
+  /* border-left: none; */
+  cursor: default;
+  /* flex: 0 0 20px; */
+  font-family: Arial,sans-serif;
+  font-size: 1.25rem;
+  /* float: left; */
+  height: 23px;
+  line-height: 21px;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  width: 20px;
+}
+
+
+/**/
+div.combobox .dropdownlist .outputDestination {
+  display: none;
+  cursor: pointer;
+  background: none;
+  font-weight: 300;
+}
+div.combobox .dropdownlist .outputDestination:hover {
+  color: rgb(36, 91, 255);
+}
+
+.dbprintersList-specialCase {
+  display: none;
+}
+
+.dbprintersList-specialCase .presetList {
+  background: none;
+  border: none;
+  float: none;
+  line-height: 0;
+}

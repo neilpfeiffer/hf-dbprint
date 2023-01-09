@@ -1,0 +1,38 @@
+/* -- Contextual Custom Menu -- ***/
+.contextMenu {
+  background: #e7e7e7;
+  border: 1px solid #bcbcbc;
+  box-shadow: 2px 2px 2px -1px rgb(0 0 0 / 50%);
+  color: #000000;
+  display: none;
+  height: auto;
+  position: absolute;
+  width: 19%;
+}
+.contextMenu ul {
+  list-style: none;
+}
+.contextMenu ul li {
+  padding: 3px 0;
+}
+.contextMenu ul,
+.contextMenu ul li {
+  margin: 0;
+  padding: 0;
+}
+.contextMenu ul li:last-child {
+  border-bottom: none;
+}
+.contextMenu ul li a {
+  color: #282828;
+  display: block;
+  font-size: 11px;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 10px;
+  text-align: left;
+  text-transform: capitalize;
+  text-decoration: none;
+}
+.contextMenu ul li a:hover {
+  background: #91c7fa;
+}

@@ -1,0 +1,8 @@
+# gitignore
+
+*.log
+.DS_Store
+.idea
+.npm
+.rvmrc
+.vscode

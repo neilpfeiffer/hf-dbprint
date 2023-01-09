@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DBPrinters Window</title>
+    <script src="dbprintersScript.js"></script>
+    <link rel="stylesheet" href="dbprintersStyles.css" />
+    <link rel="stylesheet" href="combobox.css" />
+    <link rel="stylesheet" href="context-menu.css" />
+  </head>
+  <body class="hftest-body">
+		<div class="hftest-container-testcomplete">
+			<div class="temp-data">
+				<h1>Image to show test is Complete</h1>
+			</div>
+		</div>
+		<div id="hftest" class="hftest-container">
+
+    	<!-- BUTTON -->
+			<button
+				id="btn-completetest"
+      	class="location-two dbprint-button"
+			>
+				Send to Printer
+			</button>
+
+    	<!-- COMBOBOX -->
+			<!--
+			<div class="location-one dbprint-combobox">
+				<div class="combobox" id="js-inputCombobox">
+					<input
+						type="text"
+						name="comboboxfieldname"
+						id="cb_identifier"
+						class="inputCombobox"
+					/>
+					<span>▾</span>
+					<div class="dropdownlist" id="js-dbprintersList">
+						<p id="js-dbprintersList-label">
+							Enter 3 characters to search all...
+						</p>
+						<p
+							id="js-dbprintersList-outputDestination"
+							class="outputDestination"
+							onclick="openOutputDestination()"
+						>
+							Open Output Destination dialog...
+						</p>
+					</div>
+				</div>
+			</div>
+			-->
+
+			<!-- TEMP URL DATA -->
+			<div class="temp-data">
+				<h1>clientSize: <span id="feild-clientSize"></span></h1>
+				<h1>defaultDevice: <span id="feild-defaultDevice"></span></h1>
+				<h1>newUser: <span id="feild-newUser"></span></h1>
+				<h1>newDBPrint: <span id="feild-newDBPrint"></span></h1>
+				<h1>delay: <span id="feild-delay"></span></h1>
+			</div>
+
+		</div>
+    <script type="text/javascript" charset="utf-8" src="combobox.js"></script>
+    <script type="text/javascript" charset="utf-8">
+      const no = new ComboBox("cb_identifier");
+			const btn = document.querySelector("#btn-completetest");
+			btn.addEventListener("click", completeTest);
+
+			function completeTest() {
+				const hftest = document.querySelector(".hftest-container");
+				hftest.style.cursor = "wait";
+				btn.style.cursor = "wait";
+				setTimeout(() => {
+					hftest.style.display = "none";
+				}, "600")
+			}
+
+			// TEMP shows query parameters
+			let queryStr = new URLSearchParams(window.location.search);
+			let data = {
+				clientSize: queryStr.get("clientSize"), 
+				defaultDevice: queryStr.get("defaultDevice"), 
+				newUser: queryStr.get("newUser"),
+				newDBPrint: queryStr.get("newDBPrint"),
+				delay: parseInt(queryStr.get("delay")),
+			};
+			const clientSizeField = document.querySelector("#feild-clientSize");
+			clientSizeField.innerHTML = data.clientSize;
+			const defaultDeviceField = document.querySelector("#feild-defaultDevice");
+			defaultDeviceField.innerHTML = data.defaultDevice;
+			const newUserField = document.querySelector("#feild-newUser");
+			newUserField.innerHTML = data.newUser;
+			const newDBPrintField = document.querySelector("#feild-newDBPrint");
+			newDBPrintField.innerHTML = data.newDBPrint;
+			const delayField = document.querySelector("#feild-delay");
+			delayField.innerHTML = data.delay;
+
+    </script>
+  </body>
+</html>
+

@@ -1,0 +1,32 @@
+[
+  {
+    "type": "printers",
+    "payload": [
+      {
+        "rawData": [
+          "blr-h1-l1r",
+          "blr-h1-l2r",
+          "blr-h1-l3r",
+          "blr-h2-l1r",
+          "blr-h3-l1r"
+        ]
+      },
+      {
+        "preConfiguredData": [
+          "c45-s5-m1",
+          "f22-k6-l1r",
+          "blr-h3-l4r",
+          "blr-h1-l1r",
+          "blr-h1-l2r",
+          "blr-h1-l3r",
+          "blr-h2-l1r",
+          "blr-h3-l1r"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "fax",
+    "payload": []
+  }
+]

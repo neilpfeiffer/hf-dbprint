@@ -1,0 +1,209 @@
+html,
+body {
+  word-wrap: break-word;
+  word-break: break-word;
+  font-family: Tahoma,Geneva,Verdana,Trebuchet MS,sans-serif;
+  font-size: 75%;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* max-width: 1480px;
+  max-height: 767px; */
+}
+
+.hftest-body {
+  background-color: #1c1c1c;
+  margin: 0;
+  padding: 0;
+  overflow: scroll;
+}
+
+.hftest-container,
+.hftest-container-testcomplete {
+  background-color: #ddd;
+  height: 840px;
+  width: 1580px;
+  margin: 0;
+  position: absolute;
+  padding: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 3px 10px 5px rgb(0, 0, 0);
+  border-radius: 6px;
+}
+
+.hftest-container {
+  background-color: #ddd;
+}
+
+.hftest-container-testcomplete {
+  background-color: #888;
+}
+
+
+
+.hftest-container.background1 {
+  background-color: #ddd;
+}
+
+.hftest-container.background2 {
+  background-color: #ff0;
+}
+
+.temp-data {
+  left: 440px;
+  position: absolute;
+  top: 340px;
+}
+
+
+.hftest-container-testcomplete .temp-data {
+  color: #fff;
+  left: 680px;
+  top: 400px;
+}
+
+.location-one {
+  /* height: 46px; */
+  width: 180px;
+
+  left: 820px;
+  position: absolute;
+  top: 420px;
+
+  /* height: 20px;
+  left: 992px;
+  position: absolute;
+  top: 482px;
+  width: 240px; */
+}
+
+
+/* -- BUTTON Location -- */
+.location-two {
+  /* height: 34px; */
+  width: 180px;
+  left: 820px;
+  position: absolute;
+  top: 490px;
+}
+
+
+/* -- BUTTON -- */
+.dbprint-button {
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.41666667;
+  font-family: Tahoma,Geneva,Verdana,Trebuchet MS,sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: .25rem .83333333rem;
+  border: 1px solid #64696c;
+  display: inline-block;
+  margin: 0;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background: -webkit-gradient(linear,left top,left bottom,from(#f4f4f4),to(#dedfe0));
+  background: -moz-linear-gradient(#f4f4f4,#dedfe0);
+  background: linear-gradient(#f4f4f4,#dedfe0);
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.dbprint-button:hover {
+  background: -webkit-gradient(linear,left top,left bottom,from(#f4f4f4),to(#b2b5b6));
+  background: -moz-linear-gradient(#f4f4f4,#b2b5b6);
+  background: linear-gradient(#f4f4f4,#b2b5b6);
+}
+
+.dbprint-button:active {
+  outline: 0;
+  background: -webkit-gradient(linear,left top,left bottom,from(#f4f4f4),to(#64696c));
+  background: -moz-linear-gradient(#f4f4f4,#64696c);
+  background: linear-gradient(#f4f4f4,#64696c);
+}
+
+
+
+/* .printbutton {
+  left: 992px;
+  position: absolute;
+  top: 520px;
+} */
+
+
+/* -- COMBO-BOX -- */
+.dbprint-combobox {
+  /* border-style: solid;
+  border-color: #ed0000;
+  border-width: 2px; */
+
+  /* border-color: #e9e9e9; */
+  /* border-style: inset none none inset; */
+
+  /* height: 28px;
+  left: 48%; */
+  /* top: 17px;
+  width: 48%; */
+}
+
+
+
+
+
+
+.bodyBackround {
+  height: 767px;
+  width: 1480px;
+  overflow: scroll;
+  /* background-color: black; */
+  background-color: #ffffff;
+  /* background-image: url(dbprintersBackground.jpg); */
+  background-image: url(images/background1.png);
+  background-repeat: no-repeat;
+  /* background-size: 700px; */
+  background-size: 1480px 767px;
+}
+
+.bodyBackground2 {
+  background-image: url(images/background1.png);
+  background-repeat: no-repeat;
+  background-size: 1480px 767px;
+}
+
+.background--1 {
+  background-image: url(images/background1.png);
+  background-repeat: no-repeat;
+  background-size: 1480px 767px;
+}
+
+
+
+
+
+
+.interactive-one {
+  background: #f00;
+
+  height: 50px;
+  width: 50px;
+
+  left: 50px;
+  position: absolute;
+  top: 50px;
+}
+
+.interactive-two {
+  background: rgb(116, 116, 227);
+  border: 1px solid #00f;
+
+  height: 50px;
+  width: 50px;
+
+  left: 100px;
+  position: absolute;
+  top: 100px;
+}
