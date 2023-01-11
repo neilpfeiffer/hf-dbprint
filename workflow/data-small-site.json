@@ -4,9 +4,9 @@
     "payload": [
       {
         "defaultedData": [
-          "ed_ecic_hp_t2 — suggested",
-          "ed_ns_1 — your default",
-          "ed_ns_4 — workstation default"
+          "4main_nurse_t2 — suggested",
+          "fh_roc_2fl_zb — your default",
+          "pharmacy_admcr — workstation default"
         ]
       },
       {
