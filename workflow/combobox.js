@@ -95,6 +95,7 @@ async function getData(data) {
 
   let json = await fetch(data);
   let info = await json.text();
+  let defaultDeviceStr;
   let comboboxData = [];
   comboboxData = JSON.parse(info);
   comboboxData.map((e) => {
@@ -106,7 +107,7 @@ async function getData(data) {
             let selectOption = document.createElement("a");
             selectOption.setAttribute("data-printers-quicklist","");
             selectOption.innerHTML = elem;
-            if (i ===0) {
+            if (i === 0) {
               var stringPv = elem.split(" — ");
               var pv = "";
               var specialSetup = "";
@@ -119,6 +120,7 @@ async function getData(data) {
               // set the value to default for first item
               document.getElementById("cb_identifier").value = pv;
               selectOption.className = "highlight";
+              defaultDeviceStr = pv;
             }
 
             if(!isNewUser) {
@@ -155,6 +157,10 @@ async function getData(data) {
               dbprintersList.append(selectOption);
             } else {
               selectOption.value = elem;
+              if (isDefaultDevice && elem === defaultDeviceStr) {
+                selectOption.selected = true;
+                document.getElementById("js-selectEmptyOption").removeAttribute("selected");
+              }
               dbprintersSelect.append(selectOption);
             }
           });

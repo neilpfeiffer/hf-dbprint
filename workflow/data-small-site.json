@@ -4,7 +4,7 @@
     "payload": [
       {
         "defaultedData": [
-          "c45_s5-m1 — suggested",
+          "c45_s5_m1 — suggested",
           "f22_k6_l1r — your default",
           "g23_k1_l3r — workstation default"
         ]
@@ -26,6 +26,7 @@
           "blr-h1-l3r",
           "blr-h2-l1r",
           "blr-h3-l1r",
+          "c45_s5_m1",
           "521flpharm",
           "522fladmin",
           "522fleast",

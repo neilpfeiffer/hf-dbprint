@@ -4,7 +4,7 @@
     "payload": [
       {
         "defaultedData": [
-          "c45_s5-m1 — suggested",
+          "c45_s5_m1 — suggested",
           "f22_k6_l1r — your default",
           "g23_k1_l3r — workstation default"
         ]
@@ -2003,6 +2003,7 @@
           "br_0010_lbl_rc_wb",
           "br_0012_lbl_pn",
           "br_0013",
+          "c45_s5_m1",
           "cb_0001",
           "cb_0002",
           "cb_0003",
