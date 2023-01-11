@@ -26,9 +26,8 @@
 				Send to Printer
 			</button>
 
-
     	<!-- COMBOBOX -->
-			<div class="location-one dbprint-combobox">
+			<div class="location-one dbprint-combobox" id="js-comboboxContainer">
 				<div class="combobox" id="js-inputCombobox">
 					<input
 						type="text"
@@ -45,6 +44,13 @@
 				</div>
 			</div>
 
+    	<!-- SELECT -->
+			<div class="location-one dbprint-select" id="js-selectContainer">
+				<select class="inputSelect" id="js-dbprintersSelect" name="dbprint">
+					<!-- options go here -->
+					  <option id="js-selectOptionNoDefault" selected value="">&nbsp;</option>
+				</select>
+			</div>
 
 			<!-- TEMP URL DATA -->
 			<div class="temp-data">
@@ -74,12 +80,13 @@
 			// TEMP shows query parameters
 			let queryStr = new URLSearchParams(window.location.search);
 			let data = {
-				clientSize: queryStr.get("clientSize"), 
-				defaultDevice: queryStr.get("defaultDevice"), 
-				newUser: queryStr.get("newUser"),
-				newDBPrint: queryStr.get("newDBPrint"),
+				clientSize: queryStr.get("clientSize") === "large" ? "large" : "small",
+				defaultDevice: queryStr.get("defaultDevice") === "false" ? false : true,
+				newUser: queryStr.get("newUser") === "false" ? false : true,
+				newDBPrint: queryStr.get("newDBPrint") === "false" ? false : true,
 				delay: parseInt(queryStr.get("delay")),
 			};
+
 			const clientSizeField = document.querySelector("#feild-clientSize");
 			clientSizeField.innerHTML = data.clientSize;
 			const defaultDeviceField = document.querySelector("#feild-defaultDevice");
@@ -90,6 +97,15 @@
 			newDBPrintField.innerHTML = data.newDBPrint;
 			const delayField = document.querySelector("#feild-delay");
 			delayField.innerHTML = data.delay;
+
+			// let isNewDBPrint = (data.newDBPrint === "false") ? false : true;
+			if (data.newDBPrint) {
+				// document.getElementById("js-comboboxContainer").style.border = "4px solid red";
+				document.getElementById("js-selectContainer").remove();
+			} else {
+				// document.getElementById("js-selectContainer").style.border = "4px solid red";
+				document.getElementById("js-comboboxContainer").style.display = "none";
+			}
 
     </script>
   </body>

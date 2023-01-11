@@ -82,10 +82,17 @@ function hideItems(parobject) {
 // === GET MOCKED DATA === //
 async function getData(data) {
   let dbprintersList = document.getElementById("js-dbprintersList");
-  var isQuickList = dbprintersList.getAttribute('data-quicklist-mode') === "false" ? false : true;
+  let isQuickList = dbprintersList.getAttribute('data-quicklist-mode') === "false" ? false : true;
   if (isQuickList === true) {
     // dbprintersListRawData.style.display = "none";
   }
+
+  // if (isNewDBPrint) {
+  //   dbprintersSelect.remove();
+  // } else {
+  //   dbprintersList.remove();
+  // }
+
   let json = await fetch(data);
   let info = await json.text();
   let comboboxData = [];
@@ -137,13 +144,19 @@ async function getData(data) {
         }
 
         if (el.hasOwnProperty("rawData")) {
+          let dbprintersSelect = (!isNewDBPrint) ? document.getElementById("js-dbprintersSelect") : undefined;
           el.rawData.map((elem) => {
             // POPULATE all the "All List" of options in the combobox
-            let selectOption = document.createElement("a");
+            let selectOption = isNewDBPrint ? document.createElement("a") : document.createElement("option");
             selectOption.setAttribute("data-printers-alllist","");
             selectOption.innerHTML = elem;
-            selectOption.style.display = "none";
-            dbprintersList.append(selectOption);
+            if (isNewDBPrint) {
+              selectOption.style.display = "none";
+              dbprintersList.append(selectOption);
+            } else {
+              selectOption.value = elem;
+              dbprintersSelect.append(selectOption);
+            }
           });
         }
       });

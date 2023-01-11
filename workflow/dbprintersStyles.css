@@ -80,6 +80,16 @@ body {
   width: 240px; */
 }
 
+.location-one-b {
+  width: 180px;
+  left: 820px;
+  position: absolute;
+  top: 320px;
+}
+
+.dbprint-select {
+  z-index: 9999;
+}
 
 /* -- BUTTON Location -- */
 .location-two {
