@@ -3,30 +3,62 @@
     "type": "printers",
     "payload": [
       {
+        "defaultedData": [
+          "c45_s5-m1 — suggested",
+          "f22_k6_l1r — your default",
+          "g23_k1_l3r — workstation default"
+        ]
+      },
+      {
+        "preConfiguredData": [
+          "blr_h1_l1r",
+          "blr_h3_l1r",
+          "blr_h3_l4r",
+          "52_1fl_pharm",
+          "52_3fl_east",
+          "52_4fl_west"
+        ]
+      },
+      {
         "rawData": [
           "blr-h1-l1r",
           "blr-h1-l2r",
           "blr-h1-l3r",
           "blr-h2-l1r",
-          "blr-h3-l1r"
-        ]
-      },
-      {
-        "preConfiguredData": [
-          "c45-s5-m1",
-          "f22-k6-l1r",
-          "blr-h3-l4r",
-          "blr-h1-l1r",
-          "blr-h1-l2r",
-          "blr-h1-l3r",
-          "blr-h2-l1r",
-          "blr-h3-l1r"
+          "blr-h3-l1r",
+          "521flpharm",
+          "522fladmin",
+          "522fleast",
+          "522flwest",
+          "523fl305",
+          "523fl306",
+          "523fl307",
+          "523fleast",
+          "523fleastrx",
+          "524fl402c",
+          "524fleast",
+          "524fleastrx",
+          "524flwest",
+          "525fleast",
+          "525fleastrx",
+          "525flwest",
+          "525flwestrx",
+          "526fl603",
+          "526fl608",
+          "526fleast",
+          "526fleastrx",
+          "526flwest",
+          "52blvhall",
+          "52blvhall2",
+          "52blvhim",
+          "52blvopr",
+          "52blvrad",
+          "52lleast",
+          "52lleastrx",
+          "52lllab02",
+          "52llrad"
         ]
       }
     ]
-  },
-  {
-    "type": "fax",
-    "payload": []
   }
 ]

@@ -26,8 +26,8 @@
 				Send to Printer
 			</button>
 
+
     	<!-- COMBOBOX -->
-			<!--
 			<div class="location-one dbprint-combobox">
 				<div class="combobox" id="js-inputCombobox">
 					<input
@@ -37,21 +37,14 @@
 						class="inputCombobox"
 					/>
 					<span>▾</span>
-					<div class="dropdownlist" id="js-dbprintersList">
-						<p id="js-dbprintersList-label">
+					<div class="dropdownlist" id="js-dbprintersList" data-quicklist-mode="true">
+						<p class="dropdownlist-hint" id="js-dbprintersList-hint">
 							Enter 3 characters to search all...
-						</p>
-						<p
-							id="js-dbprintersList-outputDestination"
-							class="outputDestination"
-							onclick="openOutputDestination()"
-						>
-							Open Output Destination dialog...
 						</p>
 					</div>
 				</div>
 			</div>
-			-->
+
 
 			<!-- TEMP URL DATA -->
 			<div class="temp-data">
@@ -102,3 +95,43 @@
   </body>
 </html>
 
+						<!--
+						<p
+							id="js-dbprintersList-outputDestination"
+							class="outputDestination"
+							onclick="openOutputDestination()"
+						>
+							Open Output Destination dialog...
+						</p>
+						-->
+
+
+<!--
+TODO:
+√ √√√√√
+
+1/
+ Finish Show/Hide
+ Separate Defaults
+ Add pre-assigned Default
+ Fix Clicking / Selection
+√ Remove bold when searching
+
+2/
+ Add the dropdown version
+
+3/
+ Veryify search hint banner labels and interaction
+
+4/
+ Add Fax addresses
+ Finish Data files and renaming
+
+5/
+ Add images
+
+6/
+ Fix 100 or more
+ Open the dialog
+
+-->
