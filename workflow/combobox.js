@@ -27,6 +27,7 @@ function assignSelected() {
   for (let i = 0; i < optionsList.length; i++) {
     if (optionsList[i].getAttribute("data-value") === currentSelection) {
       optionsList[i].classList.add("highlight");
+      document.getElementById("cb_identifier").setAttribute("data-current-selected-index", i);
     }
   }
 }
@@ -60,7 +61,6 @@ function toggleOverlay(state) {
     overlay.classList.add("overlay-mask");
   }
   if (state === "off") {
-    // overlay.removeEventListener("click");
     overlay.classList.remove("overlay-mask");
   }
 }
@@ -110,6 +110,16 @@ function resetDropList() {
     // document.getElementById("cb_identifier").value = currentSelection;
   // }
 }
+
+function updateTestingInfo(dlLength, curIdx, curHighlight) {
+  document.getElementById("feild-droplength").innerText = dlLength;
+  document.getElementById("feild-selected").innerText = `[${document.getElementById("cb_identifier").getAttribute("data-current-selection-index")}] ${document.getElementById("cb_identifier").getAttribute("data-current-selection")}`;
+  document.getElementById("feild-highlight").innerText = `[${curIdx}] ${curHighlight}`;
+}
+
+
+
+
 
 
 
@@ -206,6 +216,7 @@ async function getData(data) {
               // set the value to have suggested device be auto-selected 
               document.getElementById("cb_identifier").value = optValue;
               document.getElementById("cb_identifier").setAttribute("data-current-selection", optValue);
+              document.getElementById("cb_identifier").setAttribute("data-current-selection-index", i);
               //>>> change this >>> selectOption.className = "highlight";
               defaultDeviceStr = optValue;
             }
@@ -292,45 +303,51 @@ ComboBox = function (object_name) {
     // Edit element cache
     this.edit = document.getElementById(object_name);
     // Items Container
-    var ddl = document
+    var ddlist = document
       .getElementById(object_name)
-      .parentNode.getElementsByTagName("DIV");
-    this.dropdownlist = ddl[0];
+      .parentNode.getElementsByTagName("div");
+    this.dropdownlist = ddlist[0].getElementsByTagName("a");
+    //this.dropdownlist = document.getElementById("js-dbprintersList").getElementsByTagName("a");
     // Current Item
-    this.currentitem = null;
+    this.currentitem = ( this.dropdownlist[0].getAttribute("data-value") !== undefined ) ? undefined : this.dropdownlist[0].getAttribute("data-value");
     // Current Item Index
-    this.currentitemindex = null;
+    this.currentitemindex = 0;
     // Visible Items Count
-    this.visiblecount = 0;
+    this.visiblecount = this.dropdownlist.length;
+    // arrow helper
+    this.redoFirst = (document.getElementById(object_name).getAttribute("data-current-selection").length < 1) ? true : false;
     // Closure Object
     const parobject = this;
     // Picker
-    const pick = document
-      .getElementById(object_name)
-      .parentNode.getElementsByTagName("SPAN");
+    const pick = document.getElementById(object_name).parentNode.getElementsByTagName("span");
+
+    function resetIndexes () {
+      parobject.redoFirst = (document.getElementById(object_name).getAttribute("data-current-selection").length < 1) ? true : false;
+      parobject.currentitemindex = 0;
+      parobject.currentitem = parobject.dropdownlist[0].getAttribute("data-value");
+    }
+
+    // CHEVRON -- SHOW + HIDE LISTBOX when picker icon is clicked
     pick[0].onclick = function () {
       document.getElementById("cb_identifier").getAttribute("data-list-is-open") === "false" ?
         toggleDroplist("open") :
-        toggleDroplist("close");
+        toggleDroplist("close") && resetDropList() && resetIndexes();
       // console.log(1);
       // parobject.edit.focus();
     };
-
-
-    
-    // FOCUS - SHOW LISTBOX -- Show Items when edit get focus
+    // FOCUS -- SHOW LISTBOX -- Show Items when input receives focus
     this.edit.onfocus = function () {
-      // parobject.dropdownlist.style.display = "block";
-      toggleDroplist("open");
+      setTimeout(function () {
+        toggleDroplist("open");      
+        this.edit.select();
+      }, 1);
     }; 
-    
-
-    
-    // BLUR - HIDE LISTBOX -- Hide Items when edit lost focus
+    // BLUR -- HIDE LISTBOX -- Hide Items when input loses focus
     this.edit.onblur = function () {
       if (allowLoose) {
         setTimeout(function () {
           resetDropList();
+          resetIndexes();
         }, 150);
       }
     }; // End onblur
@@ -351,7 +368,7 @@ ComboBox = function (object_name) {
 
     /* ================================================================
     // Get Items
-    this.listitems = this.dropdownlist.getElementsByTagName("A");
+    this.listitems = this.dropdownlist.getElementsByTagName("a");
     for (var i = 0; i < this.listitems.length; i++) {
       var t = i;
       // Binding Click Event
@@ -408,12 +425,73 @@ ComboBox = function (object_name) {
       }; // End onmouseover
     }
     ================================================================ */
+    let ddl = parobject.dropdownlist;
+    let vc = parobject.visiblecount;
+    let cii = parobject.currentitemindex;
+    let ci = parobject.currentitem;
+    // updateTestingInfo(vc, cii, ci);
 
 
-    /* ================================================================
-    // Binding OnKeyDown Event
+    // ONKEYDOWN - NAVIGATION WITH KEYBOARD
     this.edit.onkeydown = function (e) {
       e = e || window.event;
+
+      // PRESSING ARROW UP // or ARROW LEFT KEY e.keyCode === 37
+      if (e.keyCode === 38) {
+        if (vc > 0) {
+          if (cii > 0 && cii < vc) {
+            ddl[cii].classList.remove("highlight");
+            cii--;
+            ddl[cii].classList.add("highlight");
+            ci = ddl[cii].getAttribute("data-value");
+            updateTestingInfo(vc, cii, ci);
+          }
+
+        }        
+      }
+
+      // PRESSING ARROW DOWN // or ARROW RIGHT KEY e.keyCode ===  39
+      if (e.keyCode === 40) {
+        if (vc > 0) {
+          if (cii >= 0 && (cii + 1 < vc)) {
+            ddl[cii].classList.remove("highlight");
+            // if (cii === 0 && parobject.redoFirst) {
+            //   cii--;
+            //   parobject.redoFirst = false;
+            // }
+            cii++;
+            ddl[cii].classList.add("highlight");
+            ci = ddl[cii].getAttribute("data-value");
+            updateTestingInfo(vc, cii, ci);
+          }
+        }
+      }
+
+      // PRESSING HOME KEY 
+      if (e.keyCode === 36) {
+        for (var i = 0; i < vc; i++) {
+          ddl[i].classList.remove("highlight");
+        }
+        cii = 0;
+        ci = ddl[cii].getAttribute("data-value");
+        ddl[cii].classList.add("highlight");
+        updateTestingInfo(e.keyCode, cii, ci);
+      }
+      
+      // PRESSING END KEY 
+      if (e.keyCode === 35) {
+        for (var i = 0; i < vc; i++) {
+          ddl[i].classList.remove("highlight");
+        }
+        cii = vc-1;
+        ci = ddl[cii].getAttribute("data-value");
+        ddl[cii].classList.add("highlight");
+        updateTestingInfo(e.keyCode, cii, ci);
+
+      }
+
+
+      /* ================================================================
       // Move Selection Up
       if (e.keyCode === 38) {
         // up
@@ -483,17 +561,18 @@ ComboBox = function (object_name) {
         }
         return false;
       }
-    }; // End onkeydown
-    ================================================================ */
+          ================================================================ */
+
+    }; // END ONKEYDOWN
 
     
-    // THIS IS THE TYPING AND SEARCHING PART
+    // ONKEYUP - TYPING AND SEARCHING PART
     this.edit.onkeyup = function (e) {    
-      document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "false");
 
       // Custom code
       let inputBox = e.currentTarget.value;
-      if (inputBox.length > 2) {
+      if (inputBox.length > 2 && document.getElementById("js-dbprintersList").getAttribute("data-quicklist-mode") === true) {
+        document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "false");
         document.getElementById("js-dbprintersList-hint").innerText =
           "Searching all...";
         removeList("quicklist");
@@ -504,11 +583,12 @@ ComboBox = function (object_name) {
       // End of Custom code
       // Labels "Searching all" and "enter 3 characters to search all..."
 
-
-      /* ================================================================ 
       e = e || window.event;
+      /* ================================================================ 
+
+      // PRESSING ENTER KEY
       if (e.keyCode === 13) {
-        // enter
+
         if (parobject.visiblecount != 0) {
           var upv = parobject.currentitem.innerHTML;
           upv = upv.replace(/\<b\>/gi, "");
@@ -607,25 +687,40 @@ ComboBox = function (object_name) {
       }
 
       ================================================================ */
-
-
-      // For the new user, when he/she deletes the entry, the items should be hidden
       // let inputComboboxLength = document.getElementById("cb_identifier").value.length;
+      // For the new user, when he/she deletes the entry, the items should be hidden
+
+      // PRESSING ESCAPE KEY
+      if (e.keyCode === 27) {
+        document.getElementById("cb_identifier").blur();
+        document.body.focus();
+        resetDropList();
+      }      
+
+      // PRESSING TAB KEY
+      if (e.keyCode === 9) {
+        // Let existing onFocus Handler manage instead
+        e.stopPropagation();
+        e.preventDefault(); 
+      }      
+
+      // PRESSING DELETE KEY
       if (e.keyCode === 8) {
         let inputComboboxLength = document.getElementById("cb_identifier").value.length;
         document.getElementById("js-dbprintersList-hint").innerText = inputComboboxLength;
-
         if (inputComboboxLength < 3) {
           resetListHint();        
         }
         if (inputComboboxLength === 0) {
           document.getElementById("cb_identifier").setAttribute("data-current-selection", "");
+          document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
           removeHighlight();
+          resetQuickList();
           // hideAllList(parobject);
         }
-      }              
+      }
 
-    }; // End onkeyup
+    }; // END ONKEYUP
     
 
   }, 100); // End custom code setTimeOut

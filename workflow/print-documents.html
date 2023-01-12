@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="combobox.css" />
     <link rel="stylesheet" href="context-menu.css" />
   </head>
-  <body class="hftest-body">
+  <body class="hftest-body" tabindex="1">
 		<div class="hftest-container-testcomplete">
 			<div class="temp-data">
 				<h1>Image to show test is Complete</h1>
@@ -22,6 +22,7 @@
 			<button
 				id="btn-completetest"
       	class="location-two dbprint-button"
+				tabindex="3"
 			>
 				Send to Printer
 			</button>
@@ -39,9 +40,17 @@
 						class="inputCombobox"
 						data-list-is-open="false"
 						data-current-selection
+						data-current-selection-index
+						tabindex="1"
 					/>
-					<span class="iconChevron">▾</span>
-					<div class="dropdownlist" id="js-dbprintersList" data-quicklist-mode="true">
+					<span 
+						class="iconChevron"
+					>▾</span>
+					<div 
+						class="dropdownlist" 
+						id="js-dbprintersList" 
+						data-quicklist-mode="true"
+					>
 						<p class="dropdownlist-hint" id="js-dbprintersList-hint">
 							Enter 3 characters to search all...
 						</p>
@@ -51,9 +60,13 @@
 
     	<!-- SELECT -->
 			<div class="location-one dbprint-select" id="js-selectContainer">
-				<select class="inputSelect" id="js-dbprintersSelect" name="dbprint">
-					<!-- options go here -->
-					  <option id="js-selectEmptyOption" selected value="">&nbsp;</option>
+				<select 
+					class="inputSelect" 
+					id="js-dbprintersSelect" 
+					name="dbprint" 
+					tabindex="2"
+				>
+					<option id="js-selectEmptyOption" selected value="">&nbsp;</option>
 				</select>
 			</div>
 
@@ -64,6 +77,9 @@
 				<h1>newUser: <span id="feild-newUser"></span></h1>
 				<h1>newDBPrint: <span id="feild-newDBPrint"></span></h1>
 				<h1>delay: <span id="feild-delay"></span></h1>
+				<h1>droplist length: <span id="feild-droplength"></span></h1>
+				<h1>current selection: <span id="feild-selected"></span></h1>
+				<h1>current highlight: <span id="feild-highlight"></span></h1>
 			</div>
 
 		</div>

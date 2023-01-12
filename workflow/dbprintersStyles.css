@@ -10,6 +10,7 @@ body {
   overscroll-behavior: none;
   /* max-width: 1480px;
   max-height: 767px; */
+  outline: none;
 }
 
 .hftest-body {
@@ -67,6 +68,7 @@ body {
 
 div.overlay-mask {
   background-color: rgba(255, 255, 255, 0.001);
+  /* background-color: rgba(255, 55, 55, 1); */
   height: 100%;
   width: 100%;
   position: relative;
