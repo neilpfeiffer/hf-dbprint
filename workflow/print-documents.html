@@ -26,6 +26,9 @@
 				Send to Printer
 			</button>
 
+    	<!-- OVERLAY MASK -->
+			<div id="js-overlayMask"></div>
+
     	<!-- COMBOBOX -->
 			<div class="location-one dbprint-combobox" id="js-comboboxContainer">
 				<div class="combobox" id="js-inputCombobox">
@@ -34,8 +37,10 @@
 						name="comboboxfieldname"
 						id="cb_identifier"
 						class="inputCombobox"
+						data-list-is-open="false"
+						data-current-selection
 					/>
-					<span>▾</span>
+					<span class="iconChevron">▾</span>
 					<div class="dropdownlist" id="js-dbprintersList" data-quicklist-mode="true">
 						<p class="dropdownlist-hint" id="js-dbprintersList-hint">
 							Enter 3 characters to search all...
@@ -99,10 +104,8 @@
 			delayField.innerHTML = data.delay;
 
 			if (data.newDBPrint) {
-				// document.getElementById("js-comboboxContainer").style.border = "4px solid red";
 				document.getElementById("js-selectContainer").remove();
 			} else {
-				// document.getElementById("js-selectContainer").style.border = "4px solid red";
 				document.getElementById("js-comboboxContainer").style.display = "none";
 			}
 

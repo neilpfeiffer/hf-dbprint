@@ -13,9 +13,108 @@ let configObject = {
   loadDelay: parseInt(urlParams.get("delay")),
 };
 const { clientSize, isDefaultDevice, isNewUser, isNewDBPrint, title, dialog, loadDelay } = configObject;
+let dataObject = {
+  defaultList: [],
+  preConfiguredList: [],
+  rawList: []
+};
+
+// ======================================================
+// new utils
+function assignSelected() {
+  let currentSelection = document.getElementById("cb_identifier").getAttribute("data-current-selection");
+  let optionsList = document.getElementById("js-dbprintersList").getElementsByTagName("a");
+  for (let i = 0; i < optionsList.length; i++) {
+    if (optionsList[i].getAttribute("data-value") === currentSelection) {
+      optionsList[i].classList.add("highlight");
+    }
+  }
+}
+
+function removeHighlight() {
+  let optionsList = document.getElementById("js-dbprintersList").getElementsByTagName("a");
+  for (let i = 0; i < optionsList.length; i++) {
+    optionsList[i].classList.remove("highlight");
+  }
+}
+
+
+function toggleDroplist(state) {
+  if (state === "open") {
+    assignSelected();
+    document.getElementById("js-dbprintersList").style.display = "block";
+    document.getElementById("cb_identifier").setAttribute("data-list-is-open", "true");
+    toggleOverlay("on");
+  } 
+  if (state === "close") {
+    toggleOverlay("off");
+    document.getElementById("cb_identifier").setAttribute("data-list-is-open", "false");
+    document.getElementById("js-dbprintersList").style.display = "none";
+    removeHighlight();
+  }
+}
+
+function toggleOverlay(state) {
+  let overlay = document.getElementById("js-overlayMask");
+  if (state === "on") {
+    overlay.classList.add("overlay-mask");
+  }
+  if (state === "off") {
+    // overlay.removeEventListener("click");
+    overlay.classList.remove("overlay-mask");
+  }
+}
+
+function filterOptionValue(optionString) {
+  let stringPv = optionString.split(" — ");
+  if (stringPv.length > 1) {
+    return optionString.split(" — ").shift();
+  } 
+  return optionString;
+}
+
+function removeList(list) {
+  let listType = (list === "quicklist") ? "[data-printers-quicklist]" : "[data-printers-alllist]";
+  let itemsList = document.querySelectorAll(listType);
+  for (let i = 0; i < itemsList.length; i++) {
+    itemsList[i].remove();
+  }
+}
+
+function resetListHint() {
+  document.getElementById("js-dbprintersList-hint").innerText = "Enter 3 characters to search all...";
+}
+
+function resetQuickList() {
+  const { defaultList, preConfiguredList } = dataObject 
+  const quickList = document.getElementById("js-dbprintersList");
+  for (let i = 0; i < defaultList.length; i++) {
+    quickList.append(defaultList[i]);
+  }
+  for (let j = 0; j < preConfiguredList.length; j++) {
+    quickList.append(preConfiguredList[j]);
+  }
+}
+
+function resetDropList() {
+  // parobject.dropdownlist.style.display = "none";
+  let currentSelection = document.getElementById("cb_identifier").getAttribute("data-current-selection");
+  document.getElementById("cb_identifier").value = currentSelection;
+  toggleDroplist("close");
+  // hideAllList(parobject);
+  // showQuicklist(parobject);
+  resetListHint();
+  resetQuickList();
+  document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
+  // if (currentSelection.length > 0) { 
+    // document.getElementById("cb_identifier").value = currentSelection;
+  // }
+}
 
 
 
+// ======================================================
+// old utils 
 function hideItemsByAttr(parobject, parattribute) {
   let itemsList = parobject.dropdownlist.querySelectorAll(`[${parattribute}]`);
   let itemsListLength = itemsList.length;
@@ -87,12 +186,6 @@ async function getData(data) {
     // dbprintersListRawData.style.display = "none";
   }
 
-  // if (isNewDBPrint) {
-  //   dbprintersSelect.remove();
-  // } else {
-  //   dbprintersList.remove();
-  // }
-
   let json = await fetch(data);
   let info = await json.text();
   let defaultDeviceStr;
@@ -105,27 +198,22 @@ async function getData(data) {
           el.defaultedData.map((elem, i) => {
             // POPULATE the "QuickList" workflow and user default options in the combobox
             let selectOption = document.createElement("a");
+            let optValue = filterOptionValue(elem);
             selectOption.setAttribute("data-printers-quicklist","");
+            selectOption.setAttribute("data-value", optValue);
             selectOption.innerHTML = elem;
             if (i === 0) {
-              var stringPv = elem.split(" — ");
-              var pv = "";
-              var specialSetup = "";
-              if (stringPv.length > 1) {
-                pv = elem.split(" — ").shift();
-                specialSetup = " — " + elem.split(" — ").pop();
-              } else {
-                pv = elem;
-              }
-              // set the value to default for first item
-              document.getElementById("cb_identifier").value = pv;
-              selectOption.className = "highlight";
-              defaultDeviceStr = pv;
+              // set the value to have suggested device be auto-selected 
+              document.getElementById("cb_identifier").value = optValue;
+              document.getElementById("cb_identifier").setAttribute("data-current-selection", optValue);
+              //>>> change this >>> selectOption.className = "highlight";
+              defaultDeviceStr = optValue;
             }
-
             if(!isNewUser) {
+              dataObject.defaultList.push(selectOption);
               dbprintersList.append(selectOption);
             } else if (i === 0) {
+              dataObject.defaultList.push(selectOption);
               dbprintersList.append(selectOption);
             }
           });
@@ -136,25 +224,25 @@ async function getData(data) {
             // POPULATE the "QuickList" favorites and recently used options in the combobox
             let selectOption = document.createElement("a");
             selectOption.setAttribute("data-printers-quicklist","");
+            selectOption.setAttribute("data-value", elem);
             selectOption.innerHTML = elem;
+            dataObject.preConfiguredList.push(selectOption);
             dbprintersList.append(selectOption);
-
-            // document.getElementById(
-            //   "js-dbprintersList-specialCase"
-            // ).style.display = (isNewUser === false) ? "block" : "none";
           });
         }
 
         if (el.hasOwnProperty("rawData")) {
           let dbprintersSelect = (!isNewDBPrint) ? document.getElementById("js-dbprintersSelect") : undefined;
           el.rawData.map((elem) => {
-            // POPULATE all the "All List" of options in the combobox
+            // POPULATE all the "All List" of options in the combobox or select
             let selectOption = isNewDBPrint ? document.createElement("a") : document.createElement("option");
             selectOption.setAttribute("data-printers-alllist","");
             selectOption.innerHTML = elem;
             if (isNewDBPrint) {
-              selectOption.style.display = "none";
-              dbprintersList.append(selectOption);
+              selectOption.setAttribute("data-value", elem);
+              dataObject.rawList.push(selectOption);
+              //>> selectOption.style.display = "none";
+              //>> dbprintersList.append(selectOption);
             } else {
               selectOption.value = elem;
               if (isDefaultDevice && elem === defaultDeviceStr) {
@@ -182,13 +270,12 @@ async function getData(data) {
 }
 // === GO GET THE OPTIONS DATA === //
 getData(`data-${clientSize}-site.json`);
-
-
-
-
 // End of Custom code
 
 
+document.getElementById("js-overlayMask").addEventListener("click", function (evt) {
+  resetDropList();
+});
 
 
 /* 
@@ -222,25 +309,20 @@ ComboBox = function (object_name) {
       .getElementById(object_name)
       .parentNode.getElementsByTagName("SPAN");
     pick[0].onclick = function () {
-      console.log(1);
-      parobject.edit.focus();
+      document.getElementById("cb_identifier").getAttribute("data-list-is-open") === "false" ?
+        toggleDroplist("open") :
+        toggleDroplist("close");
+      // console.log(1);
+      // parobject.edit.focus();
     };
 
 
     
     // FOCUS - SHOW LISTBOX -- Show Items when edit get focus
     this.edit.onfocus = function () {
-      parobject.dropdownlist.style.display = "block";
-      
-      // Custom code
-      if (isNewUser === false) {
-        // ??? CHECK WHAT THIS DOES ???
-        // hideItems(parobject);
-
-      }
-      // End of Custom code
-
-    }; // End onfocus
+      // parobject.dropdownlist.style.display = "block";
+      toggleDroplist("open");
+    }; 
     
 
     
@@ -248,14 +330,11 @@ ComboBox = function (object_name) {
     this.edit.onblur = function () {
       if (allowLoose) {
         setTimeout(function () {
-          parobject.dropdownlist.style.display = "none";
-          hideAllList(parobject);
-          showQuicklist(parobject);
-          document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
+          resetDropList();
         }, 150);
       }
     }; // End onblur
-    var allowLoose = true;    
+    var allowLoose = true;
     // IE fix
     parobject.dropdownlist.onmousedown = function (event) {
       allowLoose = false;
@@ -270,7 +349,7 @@ ComboBox = function (object_name) {
     
 
 
-    
+    /* ================================================================
     // Get Items
     this.listitems = this.dropdownlist.getElementsByTagName("A");
     for (var i = 0; i < this.listitems.length; i++) {
@@ -328,7 +407,10 @@ ComboBox = function (object_name) {
         }
       }; // End onmouseover
     }
+    ================================================================ */
 
+
+    /* ================================================================
     // Binding OnKeyDown Event
     this.edit.onkeydown = function (e) {
       e = e || window.event;
@@ -402,6 +484,7 @@ ComboBox = function (object_name) {
         return false;
       }
     }; // End onkeydown
+    ================================================================ */
 
     
     // THIS IS THE TYPING AND SEARCHING PART
@@ -410,9 +493,10 @@ ComboBox = function (object_name) {
 
       // Custom code
       let inputBox = e.currentTarget.value;
-      if (inputBox.length > 0) {
+      if (inputBox.length > 2) {
         document.getElementById("js-dbprintersList-hint").innerText =
           "Searching all...";
+        removeList("quicklist");
       } else {
         document.getElementById("js-dbprintersList-hint").innerText =
           "Enter 3 characters to search all...";
@@ -420,6 +504,8 @@ ComboBox = function (object_name) {
       // End of Custom code
       // Labels "Searching all" and "enter 3 characters to search all..."
 
+
+      /* ================================================================ 
       e = e || window.event;
       if (e.keyCode === 13) {
         // enter
@@ -520,40 +606,27 @@ ComboBox = function (object_name) {
         }
       }
 
-      // Custom Code
+      ================================================================ */
+
 
       // For the new user, when he/she deletes the entry, the items should be hidden
-      let inputComboboxLength = document.getElementById("cb_identifier").value.length;
-      if (
-        e.keyCode === 8 &&
-        inputComboboxLength === 0
-      ) {
-        hideAllList(parobject);
-      }
-              
-      // if (
-      //   e.keyCode === 8 &&
-      //   isNewUser === true &&
-      //   inputComboboxLength === 0
-      // ) {
-      //   // ??? CHECK WHAT THIS DOES ???
-      //   hideItems2(parobject);
-      // }
+      // let inputComboboxLength = document.getElementById("cb_identifier").value.length;
+      if (e.keyCode === 8) {
+        let inputComboboxLength = document.getElementById("cb_identifier").value.length;
+        document.getElementById("js-dbprintersList-hint").innerText = inputComboboxLength;
+
+        if (inputComboboxLength < 3) {
+          resetListHint();        
+        }
+        if (inputComboboxLength === 0) {
+          document.getElementById("cb_identifier").setAttribute("data-current-selection", "");
+          removeHighlight();
+          // hideAllList(parobject);
+        }
+      }              
+
     }; // End onkeyup
     
 
   }, 100); // End custom code setTimeOut
 };
-
-
-/*
-if (isNewUser === true) {
-  // NEW USER
-  // In case different configurations are added for printers, faxes, etc.
-
-} else {
-  // SEASONED USER
-  // In case different configurations are added for printers, faxes, etc.
-  // dbprintersListQuickData.style.display = "block";
-}
-*/

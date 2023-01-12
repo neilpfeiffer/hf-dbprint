@@ -65,6 +65,13 @@ body {
   top: 400px;
 }
 
+div.overlay-mask {
+  background-color: rgba(255, 255, 255, 0.001);
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
 .location-one {
   /* height: 46px; */
   width: 180px;

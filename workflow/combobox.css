@@ -26,8 +26,8 @@ div.combobox div.dropdownlist {
   overflow-y: scroll;
   overscroll-behavior: none;
   position: absolute;
-  left: 0px;
-  top: 26px;
+  left: -2px;
+  top: 27px;
   margin: 0;
   padding: 0;
   /* padding-bottom: 3px; */
@@ -102,11 +102,20 @@ div.combobox .dropdownlist a:nth-child(n+100) {
   display: none;
 }
 
+div.combobox .dropdownlist a:first-of-type {
+  margin-top: 1px;
+}
+
 div.combobox .dropdownlist a:last-of-type {
   margin-bottom: 3px;
 }
 
 div.combobox .dropdownlist a.highlight {
+  color: #fff;
+  background-color: #0054e6;
+}
+
+div.combobox .dropdownlist a.selected {
   color: #fff;
   background-color: #0054e6;
 }
@@ -124,7 +133,7 @@ input {
 }
 
 
-div.combobox input {
+div.combobox input.inputCombobox {
   /* float: left;
   width: 92.6%; */
   border: solid 1px #ccc;
@@ -139,17 +148,26 @@ div.combobox input {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
+  outline: none;
 }
 
+/* change this up */
 div.combobox input:focus {
-  outline-offset: 3px;
+  /* outline-offset: 3px; */
 }
 
-div.combobox span {
+div.combobox input.inputCombobox[data-list-is-open=true] {
+  outline:rgb(36, 91, 255) 2px solid;
+  outline-offset: 0px;
+}
+
+
+
+div.combobox span.iconChevron {
   background: #eee;
   border: solid 1px #ccc;
   /* border-left: none; */
-  cursor: default;
+  cursor: pointer;
   /* flex: 0 0 20px; */
   font-family: Arial,sans-serif;
   font-size: 1.25rem;
@@ -162,6 +180,8 @@ div.combobox span {
   right: 0;
   text-align: center;
   width: 20px;
+  pointer-events: all;
+  user-select: none;
 }
 
 
