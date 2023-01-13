@@ -21,7 +21,7 @@ let dataObject = {
 
 // ======================================================
 // new utils
-function assignSelected() {
+function assignSelectedHighlight() {
   let currentSelection = document.getElementById("cb_identifier").getAttribute("data-current-selection");
   let optionsList = document.getElementById("js-dbprintersList").getElementsByTagName("a");
   for (let i = 0; i < optionsList.length; i++) {
@@ -42,7 +42,7 @@ function removeHighlight() {
 
 function toggleDroplist(state) {
   if (state === "open") {
-    assignSelected();
+    assignSelectedHighlight();
     document.getElementById("js-dbprintersList").style.display = "block";
     document.getElementById("cb_identifier").setAttribute("data-list-is-open", "true");
     toggleOverlay("on");
@@ -53,6 +53,7 @@ function toggleDroplist(state) {
     document.getElementById("js-dbprintersList").style.display = "none";
     removeHighlight();
   }
+  return true;
 }
 
 function toggleOverlay(state) {
@@ -109,6 +110,21 @@ function resetDropList() {
   // if (currentSelection.length > 0) { 
     // document.getElementById("cb_identifier").value = currentSelection;
   // }
+}
+
+function setInputSelection (selectionValue, indexValue) {
+  document.getElementById("cb_identifier").setAttribute("data-current-selection", selectionValue);
+  document.getElementById("cb_identifier").setAttribute("data-current-selection-index", indexValue);
+  // resetDropList();
+  document.getElementById("cb_identifier").value = selectionValue;
+  toggleDroplist("close");
+  resetListHint();
+  resetQuickList();
+  document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
+  //
+  document.getElementById("cb_identifier").blur();
+  document.body.focus();
+  // resetDropList();
 }
 
 function updateTestingInfo(dlLength, curIdx, curHighlight) {
@@ -308,32 +324,42 @@ ComboBox = function (object_name) {
       .parentNode.getElementsByTagName("div");
     this.dropdownlist = ddlist[0].getElementsByTagName("a");
     //this.dropdownlist = document.getElementById("js-dbprintersList").getElementsByTagName("a");
+    // Selected Item
+    this.selecteditem = ( this.edit.getAttribute("data-current-selection").length < 1 ) ? undefined : this.edit.getAttribute("data-current-selection");
+    // Selected Item Index
+    this.selecteditemindex = ( this.edit.getAttribute("data-current-selection-index").length < 1) ? undefined : parseInt(this.edit.getAttribute("data-current-selection-index"));
     // Current Item
-    this.currentitem = ( this.dropdownlist[0].getAttribute("data-value") !== undefined ) ? undefined : this.dropdownlist[0].getAttribute("data-value");
+    this.currentitem = ( this.selecteditem !== undefined ) ? this.selecteditem : undefined;
     // Current Item Index
-    this.currentitemindex = 0;
+    this.currentitemindex = ( this.selecteditemindex !== undefined ) ? this.selecteditemindex : undefined;
     // Visible Items Count
     this.visiblecount = this.dropdownlist.length;
-    // arrow helper
-    this.redoFirst = (document.getElementById(object_name).getAttribute("data-current-selection").length < 1) ? true : false;
+    // another arrow helper
+    this.startindexover = true;
     // Closure Object
     const parobject = this;
     // Picker
     const pick = document.getElementById(object_name).parentNode.getElementsByTagName("span");
 
+    
     function resetIndexes () {
-      parobject.redoFirst = (document.getElementById(object_name).getAttribute("data-current-selection").length < 1) ? true : false;
-      parobject.currentitemindex = 0;
-      parobject.currentitem = parobject.dropdownlist[0].getAttribute("data-value");
+      parobject.dropdownlist = document.getElementById("js-dbprintersList").getElementsByTagName("a");
+      parobject.visiblecount = parobject.dropdownlist.length;
+      parobject.currentitemindex = ( document.getElementById(object_name).getAttribute("data-current-selection-index").length < 1 ) ? undefined : document.getElementById(object_name).getAttribute("data-current-selection-index");
+      parobject.currentitem = ( document.getElementById(object_name).getAttribute("data-current-selection").length < 1 ) ? undefined : document.getElementById(object_name).getAttribute("data-current-selection");
+      parobject.startindexover = true;
+      return true;
     }
 
     // CHEVRON -- SHOW + HIDE LISTBOX when picker icon is clicked
     pick[0].onclick = function () {
-      document.getElementById("cb_identifier").getAttribute("data-list-is-open") === "false" ?
-        toggleDroplist("open") :
+      let cbInput = document.getElementById("cb_identifier");
+      cbInput.getAttribute("data-list-is-open") === "false" ?
+        toggleDroplist("open") && cbInput.focus() && cbInput.select() :
         toggleDroplist("close") && resetDropList() && resetIndexes();
       // console.log(1);
       // parobject.edit.focus();
+      // cbInput.focus() && cbInput.select()
     };
     // FOCUS -- SHOW LISTBOX -- Show Items when input receives focus
     this.edit.onfocus = function () {
@@ -436,34 +462,59 @@ ComboBox = function (object_name) {
     this.edit.onkeydown = function (e) {
       e = e || window.event;
 
+      if (parobject.startindexover) {
+        ddl = parobject.dropdownlist = document.getElementById("js-dbprintersList").getElementsByTagName("a");
+        vc = parobject.visiblecount = ddl.length;
+        cii = parobject.currentitemindex = ( document.getElementById(object_name).getAttribute("data-current-selection-index").length < 1 ) ? undefined : document.getElementById(object_name).getAttribute("data-current-selection-index");
+        ci = parobject.currentitem = ( document.getElementById(object_name).getAttribute("data-current-selection").length < 1 ) ? undefined : document.getElementById(object_name).getAttribute("data-current-selection");
+        parobject.startindexover = false;
+      }
+
       // PRESSING ARROW UP // or ARROW LEFT KEY e.keyCode === 37
       if (e.keyCode === 38) {
         if (vc > 0) {
-          if (cii > 0 && cii < vc) {
-            ddl[cii].classList.remove("highlight");
-            cii--;
-            ddl[cii].classList.add("highlight");
+          e.preventDefault();
+          if (cii === undefined) {
+            for (var i = 0; i < vc; i++) {
+              ddl[i].classList.remove("highlight");
+            }  
+            cii = 0;
             ci = ddl[cii].getAttribute("data-value");
-            updateTestingInfo(vc, cii, ci);
+            ddl[cii].classList.add("highlight");
           }
-
+          else if (cii > 0 && cii < vc) {
+            for (var i = 0; i < vc; i++) {
+              ddl[i].classList.remove("highlight");
+            }  
+            cii--;
+            ci = ddl[cii].getAttribute("data-value");
+            ddl[cii].classList.add("highlight");
+          }
+          updateTestingInfo(vc, cii, ci);
         }        
       }
 
       // PRESSING ARROW DOWN // or ARROW RIGHT KEY e.keyCode ===  39
       if (e.keyCode === 40) {
         if (vc > 0) {
-          if (cii >= 0 && (cii + 1 < vc)) {
-            ddl[cii].classList.remove("highlight");
-            // if (cii === 0 && parobject.redoFirst) {
-            //   cii--;
-            //   parobject.redoFirst = false;
-            // }
-            cii++;
-            ddl[cii].classList.add("highlight");
+          e.preventDefault();
+          if (cii === undefined) {
+            for (var i = 0; i < vc; i++) {
+              ddl[i].classList.remove("highlight");
+            }  
+            cii = 0;
             ci = ddl[cii].getAttribute("data-value");
-            updateTestingInfo(vc, cii, ci);
+            ddl[cii].classList.add("highlight");
           }
+          else if (cii >= 0 && cii < vc-1) {
+            for (var i = 0; i < vc; i++) {
+              ddl[i].classList.remove("highlight");
+            }  
+            cii++;
+            ci = ddl[cii].getAttribute("data-value");
+            ddl[cii].classList.add("highlight");
+          }
+          updateTestingInfo(vc, cii, ci);
         }
       }
 
@@ -584,6 +635,19 @@ ComboBox = function (object_name) {
       // Labels "Searching all" and "enter 3 characters to search all..."
 
       e = e || window.event;
+
+      // PRESSING ENTER KEY
+      if (e.keyCode === 13) {
+        if (cii > -1) {
+          setInputSelection(ci, cii);
+        } 
+        // else {
+        //   toggleDroplist("close");
+        //   resetDropList();
+        //   resetIndexes();
+        // }
+      }
+
       /* ================================================================ 
 
       // PRESSING ENTER KEY
