@@ -89,11 +89,16 @@ function resetListHint() {
 function resetQuickList() {
   const { defaultList, preConfiguredList } = dataObject 
   const quickList = document.getElementById("js-dbprintersList");
+  let counter = 0;
   for (let i = 0; i < defaultList.length; i++) {
+    defaultList[i].setAttribute("data-value-index", counter);
     quickList.append(defaultList[i]);
+    counter++;
   }
   for (let j = 0; j < preConfiguredList.length; j++) {
+    preConfiguredList[j].setAttribute("data-value-index", counter);
     quickList.append(preConfiguredList[j]);
+    counter++;
   }
 }
 
@@ -215,6 +220,8 @@ async function getData(data) {
   let json = await fetch(data);
   let info = await json.text();
   let defaultDeviceStr;
+  let quickCounter = 0;
+  let rawCounter = 0;
   let comboboxData = [];
   comboboxData = JSON.parse(info);
   comboboxData.map((e) => {
@@ -227,6 +234,7 @@ async function getData(data) {
             let optValue = filterOptionValue(elem);
             selectOption.setAttribute("data-printers-quicklist","");
             selectOption.setAttribute("data-value", optValue);
+            selectOption.setAttribute("data-value-index", quickCounter);
             selectOption.innerHTML = elem;
             if (i === 0) {
               // set the value to have suggested device be auto-selected 
@@ -243,6 +251,7 @@ async function getData(data) {
               dataObject.defaultList.push(selectOption);
               dbprintersList.append(selectOption);
             }
+            quickCounter++;
           });
         }
 
@@ -252,9 +261,11 @@ async function getData(data) {
             let selectOption = document.createElement("a");
             selectOption.setAttribute("data-printers-quicklist","");
             selectOption.setAttribute("data-value", elem);
+            selectOption.setAttribute("data-value-index", quickCounter);
             selectOption.innerHTML = elem;
             dataObject.preConfiguredList.push(selectOption);
             dbprintersList.append(selectOption);
+            quickCounter++;
           });
         }
 
@@ -267,6 +278,7 @@ async function getData(data) {
             selectOption.innerHTML = elem;
             if (isNewDBPrint) {
               selectOption.setAttribute("data-value", elem);
+              selectOption.setAttribute("data-value-index", rawCounter);
               dataObject.rawList.push(selectOption);
               //>> selectOption.style.display = "none";
               //>> dbprintersList.append(selectOption);
@@ -278,6 +290,7 @@ async function getData(data) {
               }
               dbprintersSelect.append(selectOption);
             }
+            rawCounter++;
           });
         }
       });
@@ -378,87 +391,59 @@ ComboBox = function (object_name) {
       }
     }; // End onblur
     var allowLoose = true;
-    // IE fix
-    parobject.dropdownlist.onmousedown = function (event) {
-      allowLoose = false;
-      return false;
-    };
-    parobject.dropdownlist.onmouseup = function (event) {
-      setTimeout(function () {
-        allowLoose = true;
-      }, 150);
-      return false;
-    };
-    
+    // // IE fix
+    // parobject.dropdownlist.onmousedown = function (event) {
+    //   allowLoose = false;
+    //   return false;
+    // };
+    // parobject.dropdownlist.onmouseup = function (event) {
+    //   setTimeout(function () {
+    //     allowLoose = true;
+    //   }, 150);
+    //   return false;
+    // };
 
 
-    /* ================================================================
-    // Get Items
-    this.listitems = this.dropdownlist.getElementsByTagName("a");
-    for (var i = 0; i < this.listitems.length; i++) {
-      var t = i;
-      // Binding Click Event
-
-      // In this onclick function we can customize any behavior of the elements, when they are selected
-      this.listitems[i].onclick = function () {
-        
-      
-        // Custom Code
-        // When clicking an option that contains " - suggested" for example, it was injecting the span tag as text.
-        // So, I'm removing them and add them again.
-        // var upv = this.innerHTML;  
-        this.classList.remove("highlight");
-        var stringUpv = this.innerText.split(" — ");
-        var upv = "";
-        var specialSetup = "";
-        if (stringUpv.length > 1) {
-          upv = this.innerText.split(" — ").shift();
-          specialSetup = " — " + this.innerText.split(" — ").pop();
-        } else {
-          upv = this.innerText;
-        }
-        // End custom code
-
-
-        if (this.id === "js-listItem") {
-          // to avoid removing and reinserting suggested and default elements
-          upv = upv.replace(/\<b\>/gi, "");
-          upv = upv.replace(/\<\/b\>/gi, "");
-          parobject.edit.value = upv + specialSetup;
-          // parobject.dropdownlist.style.display = "none";
-
-          var cloneElem = this.cloneNode(true);
-          var referenceNode = this.parentNode.children;
-          this.parentNode.insertBefore(cloneElem, referenceNode[5]);
-          this.remove();
-          return false;
-        }
-      }; // End onclick
-
-      // Binding OnMouseOver Event
-      this.listitems[i].onmouseover = function (e) {
-        for (var i = 0; i < parobject.listitems.length; i++) {
-          if (this === parobject.listitems[i]) {
-            if (parobject.currentitem) {
-              parobject.currentitem.className =
-                parobject.currentitem.className.replace(/highlight/g, "");
-            }
-            parobject.currentitem = parobject.listitems[i];
-            parobject.currentitemindex = i;
-            parobject.currentitem.className += "highlight";
-          }
-        }
-      }; // End onmouseover
-    }
-    ================================================================ */
+    // ====================================================================  
+    // REUSABLES
+    // ====================================================================  
     let ddl = parobject.dropdownlist;
     let vc = parobject.visiblecount;
     let cii = parobject.currentitemindex;
     let ci = parobject.currentitem;
-    // updateTestingInfo(vc, cii, ci);
 
 
+    // ====================================================================
+    // MOUSE NAVIGATION 
+    // ====================================================================
+    for (var i = 0; i < ddl.length; i++) {
+      // Binding Click Event
+      ddl[i].onclick = function (e) {
+        cii = parobject.currentitemindex = e.currentTarget.getAttribute("data-value-index");
+        ci = parobject.currentitem = e.currentTarget.getAttribute("data-value");
+        setInputSelection(ci, cii);
+        updateTestingInfo(vc, cii, ci);
+      }; // End onclick
+
+      // Binding OnMouseOver Event
+      ddl[i].onmouseover = function (e) {
+        if (document.getElementsByClassName("highlight").length > 0) {
+          [].forEach.call(document.getElementsByClassName("highlight"), function(el) {
+            el.classList.remove("highlight");
+          });
+        }
+        cii = parobject.currentitemindex = e.currentTarget.getAttribute("data-value-index");
+        ci = parobject.currentitem = e.currentTarget.getAttribute("data-value");
+        e.currentTarget.classList.add("highlight");
+        updateTestingInfo(vc, cii, ci);
+      }; // End onmouseover
+    }
+
+
+
+    // ====================================================================
     // ONKEYDOWN - NAVIGATION WITH KEYBOARD
+    // ====================================================================
     this.edit.onkeydown = function (e) {
       e = e || window.event;
 
@@ -477,7 +462,7 @@ ComboBox = function (object_name) {
           if (cii === undefined) {
             for (var i = 0; i < vc; i++) {
               ddl[i].classList.remove("highlight");
-            }  
+            }
             cii = 0;
             ci = ddl[cii].getAttribute("data-value");
             ddl[cii].classList.add("highlight");
@@ -540,84 +525,13 @@ ComboBox = function (object_name) {
         updateTestingInfo(e.keyCode, cii, ci);
 
       }
-
-
-      /* ================================================================
-      // Move Selection Up
-      if (e.keyCode === 38) {
-        // up
-        var cn = 0;
-        if (parobject.visiblecount > 0) {
-          if (parobject.visiblecount === 1) {
-            parobject.currentitemindex = parobject.listitems.length - 1;
-          }
-          do {
-            parobject.currentitemindex--;
-            cn++;
-          } while (
-            parobject.currentitemindex > 0 &&
-            parobject.listitems[parobject.currentitemindex].style.display ===
-              "none"
-          );
-          if (parobject.currentitemindex < 0) {
-            parobject.currentitemindex = parobject.listitems.length - 1;
-          }
-
-          if (parobject.currentitem) {
-            parobject.currentitem.className =
-              parobject.currentitem.className.replace(/highlight/g, "");
-          }
-          parobject.currentitem =
-            parobject.listitems[parobject.currentitemindex];
-          parobject.currentitem.className += " highlight";
-          parobject.currentitem.scrollIntoView(false);
-        }
-        e.cancelBubble = true;
-        if (navigator.appName !== "Microsoft Internet Explorer") {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        return false;
-      }
-
-      // Move Selection Down
-      else if (e.keyCode === 40) {
-        // down
-        var ic = 0;
-        if (parobject.visiblecount > 0) {
-          do {
-            parobject.currentitemindex++;
-          } while (
-            parobject.currentitemindex < parobject.listitems.length &&
-            parobject.listitems[parobject.currentitemindex].style.display ===
-              "none"
-          );
-          if (parobject.currentitemindex >= parobject.listitems.length) {
-            parobject.currentitemindex = 0;
-          }
-
-          if (parobject.currentitem) {
-            parobject.currentitem.className =
-              parobject.currentitem.className.replace(/highlight/g, "");
-          }
-          parobject.currentitem =
-            parobject.listitems[parobject.currentitemindex];
-          parobject.currentitem.className += " highlight";
-          parobject.currentitem.scrollIntoView(false);
-        }
-        e.cancelBubble = true;
-        if (navigator.appName != "Microsoft Internet Explorer") {
-          e.preventDefault();
-          e.stopPropagation();
-        }
-        return false;
-      }
-          ================================================================ */
-
     }; // END ONKEYDOWN
 
-    
+
+
+    // ====================================================================
     // ONKEYUP - TYPING AND SEARCHING PART
+    // ====================================================================
     this.edit.onkeyup = function (e) {    
 
       // Custom code
@@ -648,6 +562,11 @@ ComboBox = function (object_name) {
         // }
       }
 
+
+
+
+
+      
       /* ================================================================ 
 
       // PRESSING ENTER KEY
