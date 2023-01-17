@@ -11,6 +11,8 @@ body {
   /* max-width: 1480px;
   max-height: 767px; */
   outline: none;
+  padding: 0;
+  margin: 0;
 }
 
 .hftest-body {

@@ -346,12 +346,12 @@ function oldOpenOutputDestination (e) {
   window.open(
     "./outputDestionationDialog/outputDestination.html",
     "_blank",
-    "menubar=1,resizable=0,width=700,height=690"
+    "menubar=1,resizable=0,width=691,height=679"
   );
 } // END openOutputDestination
 
 function openOutputDestination (e) {
-  popupCenter({url: './outputDestionationDialog/outputDestination.html', target: "_blank", w: 700, h: 690});
+  popupCenter({url: './outputDestionationDialog/outputDestination.html', target: "_blank", w: 691, h: 679});
 } // END openOutputDestination
 
 
