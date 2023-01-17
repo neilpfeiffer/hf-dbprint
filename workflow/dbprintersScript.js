@@ -1,3 +1,4 @@
+/*
 // Contextual custom menu - borrowed code
 function contextualMenu() {
   let combobox = document.getElementById("js-listItem");
@@ -11,7 +12,7 @@ function contextualMenu() {
     closeCurrentlyOpenedMenu();
   });
 
-  /* close context menu */
+  // close context menu
   window.onkeyup = function (e) {
     if (e.keyCode === 27) {
       closeCurrentlyOpenedMenu();
@@ -51,7 +52,9 @@ function contextualMenu() {
   }
 }
 // End Contextual custom menu
+*/
 
+/*
 function openOutputDestination(e) {
   window.open(
     "./outputDestionationDialog/outputDestination.html",
@@ -59,3 +62,4 @@ function openOutputDestination(e) {
     "menubar=1,resizable=0,width=700,height=690"
   );
 }
+*/

@@ -53,14 +53,15 @@ body {
   background-color: #ff0;
 }
 
-.temp-data {
+.debug-data {
   left: 440px;
   position: absolute;
   top: 340px;
+  display: none;
 }
 
 
-.hftest-container-testcomplete .temp-data {
+.hftest-container-testcomplete .debug-data {
   color: #fff;
   left: 680px;
   top: 400px;

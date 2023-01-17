@@ -1,5 +1,10 @@
-/* Custom code */
-
+// ========================================================================
+// === DEBUG === //
+// ========================================================================
+let debug;
+// ========================================================================
+// === CONFIG === //
+// ========================================================================
 // Configure combobox according to query string
 // Parse query string and convert it into an object
 let urlParams = new URLSearchParams(window.location.search);
@@ -10,53 +15,90 @@ let configObject = {
   isNewDBPrint: urlParams.get("newDBPrint") === "false" ? false : true,
   title: urlParams.get("scenarioTitle"),
   dialog: urlParams.get("outputDialog"),
-  loadDelay: parseInt(urlParams.get("delay")),
+  loadDelay: parseInt(urlParams.get("delay"))
 };
 const { clientSize, isDefaultDevice, isNewUser, isNewDBPrint, title, dialog, loadDelay } = configObject;
+let opts = {
+  contextFilter: "all", // One of "all", "printers", "faxes", "favorites",
+  maxFilterCount: 100
+}
 let dataObject = {
   defaultList: [],
   preConfiguredList: [],
   rawList: []
-};
+}; // END Config
+
+
 
 // ======================================================
-// new utils
-function assignSelectedHighlight() {
+// UTILS
+// ======================================================
+function assignSelectedHighlight () {
   let currentSelection = document.getElementById("cb_identifier").getAttribute("data-current-selection");
   let optionsList = document.getElementById("js-dbprintersList").getElementsByTagName("a");
   for (let i = 0; i < optionsList.length; i++) {
     if (optionsList[i].getAttribute("data-value") === currentSelection) {
-      optionsList[i].classList.add("highlight");
-      document.getElementById("cb_identifier").setAttribute("data-current-selected-index", i);
+      optionsList[i].classList.add("selected", "highlight");
+      document.getElementById("js-dbprintersList").setAttribute("data-current-highlight-index", i);
+      document.getElementById("cb_identifier").setAttribute("data-current-selection-index", i);
     }
   }
-}
+} // END assignSelectedHighlight
 
-function removeHighlight() {
-  let optionsList = document.getElementById("js-dbprintersList").getElementsByTagName("a");
-  for (let i = 0; i < optionsList.length; i++) {
-    optionsList[i].classList.remove("highlight");
+function removeHighlight () {
+  // cycle through all
+  // let optionsList = document.getElementById("js-dbprintersList").getElementsByTagName("a");
+  // for (let i = 0; i < optionsList.length; i++) {
+  //   optionsList[i].classList.remove("highlight");
+  // }
+  // cycle only through ones that might have it
+  if (document.getElementsByClassName("highlight").length > 0) {
+    [].forEach.call(document.getElementsByClassName("highlight"), function(el) {
+      el.classList.remove("highlight");
+    });
   }
-}
+  document.getElementById("js-dbprintersList").removeAttribute("data-current-highlight-index");
+} // END removeHighlight
+
+function removeSelectedHighlight () {
+  if (document.getElementsByClassName("selected").length > 0) {
+    [].forEach.call(document.getElementsByClassName("selected"), function(el) {
+      el.classList.remove("selected");
+    });
+  }
+} // END removeSelectedHighlight
 
 
-function toggleDroplist(state) {
+function toggleDroplist (state) {
+  const cbInput = document.getElementById("cb_identifier");
+  const cbDroplist = document.getElementById("js-dbprintersList");
   if (state === "open") {
-    assignSelectedHighlight();
-    document.getElementById("js-dbprintersList").style.display = "block";
-    document.getElementById("cb_identifier").setAttribute("data-list-is-open", "true");
-    toggleOverlay("on");
+    setTimeout(function () {
+      assignSelectedHighlight();
+      cbDroplist.style.display = "block";
+      cbInput.setAttribute("data-list-is-open", "true");
+      toggleOverlay("on");
+    }, 10);
   } 
   if (state === "close") {
     toggleOverlay("off");
-    document.getElementById("cb_identifier").setAttribute("data-list-is-open", "false");
-    document.getElementById("js-dbprintersList").style.display = "none";
-    removeHighlight();
+    cbInput.setAttribute("data-list-is-open", "false");
+    cbDroplist.style.display = "none";
+    // setTimeout(function () {
+    cbDroplist.removeAttribute("data-current-highlight-index");
+    if (cbDroplist.getAttribute("data-quicklist-mode") === "false") {
+      removeList();
+      resetQuickList();
+      cbDroplist.setAttribute("data-quicklist-mode", "true");
+    } else {
+      removeHighlight();
+    }
+    // }, 10);
   }
   return true;
-}
+} // END toggleDroplist
 
-function toggleOverlay(state) {
+function toggleOverlay (state) {
   let overlay = document.getElementById("js-overlayMask");
   if (state === "on") {
     overlay.classList.add("overlay-mask");
@@ -64,31 +106,41 @@ function toggleOverlay(state) {
   if (state === "off") {
     overlay.classList.remove("overlay-mask");
   }
-}
+} // END toggleOverlay
 
-function filterOptionValue(optionString) {
+function filterOptionValue (optionString) {
   let stringPv = optionString.split(" — ");
   if (stringPv.length > 1) {
     return optionString.split(" — ").shift();
   } 
   return optionString;
-}
+} // END filterOptionValue
 
-function removeList(list) {
-  let listType = (list === "quicklist") ? "[data-printers-quicklist]" : "[data-printers-alllist]";
-  let itemsList = document.querySelectorAll(listType);
-  for (let i = 0; i < itemsList.length; i++) {
-    itemsList[i].remove();
-  }
-}
+function removeList () {
+  // -- NEW LIST REMOVAL UTIL
+  const hintmessage = document.getElementById("js-dbprintersList-hint").innerText;
+  const listhint = document.createElement("p");
+  listhint.className = "dropdownlist-hint";
+  listhint.id = "js-dbprintersList-hint";
+  listhint.innerText = hintmessage;
+  const listcontainer = document.getElementById("js-dbprintersList");
+  listcontainer.innerHTML = "";
+  listcontainer.append(listhint);
+  listcontainer.setAttribute("data-quicklist-mode", "");
+} // END removeList
 
-function resetListHint() {
-  document.getElementById("js-dbprintersList-hint").innerText = "Enter 3 characters to search all...";
-}
 
-function resetQuickList() {
+// "Searching all...";
+// "Enter 3 characters to search all...";
+
+function resetListHint () {
+  document.getElementById("js-dbprintersList-hint").innerText = "Enter 3 characters to search printers...";
+} // END resetListHint
+
+function resetQuickList () {
   const { defaultList, preConfiguredList } = dataObject 
   const quickList = document.getElementById("js-dbprintersList");
+  quickList.setAttribute("data-quicklist-mode", "true");
   let counter = 0;
   for (let i = 0; i < defaultList.length; i++) {
     defaultList[i].setAttribute("data-value-index", counter);
@@ -100,121 +152,310 @@ function resetQuickList() {
     quickList.append(preConfiguredList[j]);
     counter++;
   }
-}
+  if (debug) { debugUpdateListCountInfo(`${counter} (quick list)`); }
+} // END resetQuickList
 
-function resetDropList() {
-  // parobject.dropdownlist.style.display = "none";
+function resetDropList () {
   let currentSelection = document.getElementById("cb_identifier").getAttribute("data-current-selection");
   document.getElementById("cb_identifier").value = currentSelection;
   toggleDroplist("close");
-  // hideAllList(parobject);
-  // showQuicklist(parobject);
   resetListHint();
   resetQuickList();
   document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
   // if (currentSelection.length > 0) { 
     // document.getElementById("cb_identifier").value = currentSelection;
   // }
-}
+} // END resetDropList
+
+function resetAllList () {
+  const { rawList } = dataObject;
+  const quickList = document.getElementById("js-dbprintersList");
+  quickList.setAttribute("data-quicklist-mode", "false");
+  let counter = 0;
+  for (let i = 0; i < rawList.length; i++) {
+    rawList[i].setAttribute("data-value-index", counter);
+    // temp
+    //const tempVal = rawList[i].getAttribute("data-value");
+    //rawList[i].innerHTML = tempVal + " - " + counter;
+    // end temp
+    quickList.append(rawList[i]);
+    counter++;
+  }
+  if (debug) { debugUpdateListCountInfo(`${counter} (all list)`); }
+} // END resetAllList
 
 function setInputSelection (selectionValue, indexValue) {
-  document.getElementById("cb_identifier").setAttribute("data-current-selection", selectionValue);
-  document.getElementById("cb_identifier").setAttribute("data-current-selection-index", indexValue);
-  // resetDropList();
-  document.getElementById("cb_identifier").value = selectionValue;
+  const cbInput = document.getElementById("cb_identifier");
+  const cbDroplist = document.getElementById("js-dbprintersList");
+  cbInput.setAttribute("data-current-selection", selectionValue);
+  if (cbDroplist.getAttribute("data-quicklist-mode") === "false") {
+    const valueCheck = [];
+    dataObject.defaultList.forEach(element => valueCheck.push(element.getAttribute("data-value")));
+    dataObject.preConfiguredList.forEach(element => valueCheck.push(element.getAttribute("data-value")));
+    if (debug) { document.getElementById("field-delay").innerText = `${valueCheck.includes(selectionValue)} (in list already)`; }
+    if ( !valueCheck.includes(selectionValue) ) {
+      // Only add if not already in the quick list
+      let selectOption = document.createElement("a");
+      selectOption.setAttribute("data-printers-quicklist","");
+      selectOption.setAttribute("data-value", selectionValue);
+      selectOption.setAttribute("data-value-index", "");
+      selectOption.addEventListener("click", attachListMouseOnClick);
+      selectOption.addEventListener("mouseover", attachListMouseOver);
+      selectOption.innerHTML = selectionValue;
+      // dataObject.defaultList.push(selectOption);
+      dataObject.preConfiguredList.unshift(selectOption);
+    }
+    // Gets reset when selection gets assigned
+    cbInput.setAttribute("data-current-selection-index", "");
+  } else {
+    cbInput.setAttribute("data-current-selection-index", indexValue);   
+  }
+  cbInput.value = selectionValue;
   toggleDroplist("close");
+  removeSelectedHighlight();
+  if (cbDroplist.getAttribute("data-quicklist-mode") === "false") {
+    removeList();  
+    resetQuickList();
+    cbDroplist.setAttribute("data-quicklist-mode", "true");
+  }
   resetListHint();
-  resetQuickList();
-  document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
-  //
-  document.getElementById("cb_identifier").blur();
+  cbInput.blur();
   document.body.focus();
-  // resetDropList();
-}
-
-function updateTestingInfo(dlLength, curIdx, curHighlight) {
-  document.getElementById("feild-droplength").innerText = dlLength;
-  document.getElementById("feild-selected").innerText = `[${document.getElementById("cb_identifier").getAttribute("data-current-selection-index")}] ${document.getElementById("cb_identifier").getAttribute("data-current-selection")}`;
-  document.getElementById("feild-highlight").innerText = `[${curIdx}] ${curHighlight}`;
-}
+  //##?? resetDropList();
+} // END setInputSelection
 
 
 
 
 
-
-
-// ======================================================
-// old utils 
-function hideItemsByAttr(parobject, parattribute) {
-  let itemsList = parobject.dropdownlist.querySelectorAll(`[${parattribute}]`);
-  let itemsListLength = itemsList.length;
-  for (let i = 0; i < itemsListLength; i++) {
-    // itemsList[i].style.display = "block";
-    itemsList[i].style.background = "plum";
+function filterAllList (inputValue) {
+  const re = new RegExp('(' + inputValue + ')', "i");
+  const { rawList } = dataObject;
+  const quickList = document.getElementById("js-dbprintersList");
+  quickList.setAttribute("data-quicklist-mode", "false");
+  let counter = 0;
+  for (let i = 0; i < rawList.length; i++) {
+    const dv = rawList[i].getAttribute("data-value");
+    if (re.test(dv)) {
+      rawList[i].setAttribute("data-value-index", counter);
+      // temp
+      //const tempVal = rawList[i].getAttribute("data-value");
+      //rawList[i].innerHTML = tempVal + " - " + counter;
+      // end temp
+      quickList.append(rawList[i]);
+      counter++;
+      if (counter === opts.maxFilterCount) {
+        const firstOption = quickList.getElementsByTagName("a")[0];
+        [].forEach.call(quickList.getElementsByTagName("a"), function(el) {
+          const prevIndex = parseInt(el.getAttribute("data-value-index"));
+          el.setAttribute("data-value-index", prevIndex+1); 
+        });
+        const outputDialogOptionZero = createOutputDestinationDialogItem(0);
+        const outputDialogOptionEnd = createOutputDestinationDialogItem(counter);
+        quickList.insertBefore(outputDialogOptionZero, firstOption);
+        quickList.append(outputDialogOptionEnd);
+        counter+=2;
+        break;
+      }
+    }
   }
-}
-
-
-function hideQuicklist(parobject) {
-  let itemsList = parobject.dropdownlist.querySelectorAll("[data-printers-quicklist]");
-  let itemsListLength = itemsList.length;
-  for (let i = 0; i < itemsListLength; i++) {
-    itemsList[i].style.display = "none";
-    // itemsList[i].style.background = "plum";
+  if (counter === 0) {
+    document.getElementById("js-dbprintersList-hint").innerText = 
+    `No matching printers for \"${inputValue}\"`;
+    let outputDialogOption = createOutputDestinationDialogItem(counter);
+    quickList.append(outputDialogOption);
+    counter++;
   }
-}
+  if (debug) { debugUpdateListCountInfo(`${counter} (filtered)`); }
+  return counter;
+} // END filterAllList
 
-function hideAllList(parobject) {
-  let itemsList = parobject.dropdownlist.querySelectorAll("[data-printers-alllist]");
-  let itemsListLength = itemsList.length;
-  for (let i = 0; i < itemsListLength; i++) {
-    itemsList[i].style.display = "none";
-    itemsList[i].style.background = "greenyellow";
+function resetAllList () {
+  const { rawList } = dataObject;
+  const quickList = document.getElementById("js-dbprintersList");
+  quickList.setAttribute("data-quicklist-mode", "false");
+  let counter = 0;
+  for (let i = 0; i < rawList.length; i++) {
+    rawList[i].setAttribute("data-value-index", counter);
+    // temp
+    //const tempVal = rawList[i].getAttribute("data-value");
+    //rawList[i].innerHTML = tempVal + " - " + counter;
+    // end temp
+    quickList.append(rawList[i]);
+    counter++;
   }
+  if (debug) { debugUpdateListCountInfo(`${counter} (all list)`); }
+} // END resetAllList
+
+function createOutputDestinationDialogItem (indexValue) {
+  const i = (indexValue !== undefined) ? indexValue : "";
+  let selectOption = document.createElement("a");
+  selectOption.setAttribute("data-printers-outputdialog","");
+  selectOption.setAttribute("data-value", "[open-output-dialog]");
+  selectOption.setAttribute("data-value-index", i);
+  selectOption.addEventListener("mouseover", attachListMouseOver);
+  selectOption.addEventListener("click", attachOpenDialogMouseOnClick, false);
+  selectOption.innerHTML = "Open Output Destination dialog...";
+  return selectOption;
+} // END createOutputDestinationDialogItem
+
+
+function addOutputDestinationDialog () {
+  // const { rawList } = dataObject;
+  const quickList = document.getElementById("js-dbprintersList");
+  // quickList.setAttribute("data-quicklist-mode", "false");
+  // let counter = 0;
+  // for (let i = 0; i < rawList.length; i++) {
+  //   rawList[i].setAttribute("data-value-index", counter);
+  //   // temp
+  //   const tempVal = rawList[i].getAttribute("data-value");
+  //   rawList[i].innerHTML = tempVal + " - " + counter;
+  //   // end temp
+  //   quickList.append(rawList[i]);
+  //   counter++;
+  // }
+  // if (debug) { debugUpdateListCountInfo(`${counter} (all list)`); }
 }
 
-function showQuicklist(parobject) {
-  let itemsList = parobject.dropdownlist.querySelectorAll("[data-printers-quicklist]");
-  let itemsListLength = itemsList.length;
-  for (let i = 0; i < itemsListLength; i++) {
-    itemsList[i].style.display = "block";
+const popupCenter = ({url, target, w, h}) => {
+  // Fixes dual-screen position                             Most browsers      Firefox
+  const dualScreenLeft = window.screenLeft !==  undefined ? window.screenLeft : window.screenX;
+  const dualScreenTop =  window.screenTop  !==  undefined ? window.screenTop  : window.screenY;
+
+  const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+  const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+  const systemZoom = 1; // width / window.screen.availWidth;
+  const left = (width - w) / 2 / systemZoom + dualScreenLeft
+  const top = (height - h) / 2 / systemZoom + dualScreenTop
+  const newWindow = window.open(url, target, 
+    `
+    scrollbars=yes,
+    menubar=1,
+    resizable=0,
+    width=${w / systemZoom}, 
+    height=${h / systemZoom}, 
+    top=${top}, 
+    left=${left}
+    `
+  )
+  if (window.focus) newWindow.focus();
+}
+
+function oldOpenOutputDestination (e) {
+  window.open(
+    "./outputDestionationDialog/outputDestination.html",
+    "_blank",
+    "menubar=1,resizable=0,width=700,height=690"
+  );
+} // END openOutputDestination
+
+function openOutputDestination (e) {
+  popupCenter({url: './outputDestionationDialog/outputDestination.html', target: "_blank", w: 700, h: 690});
+} // END openOutputDestination
+
+
+
+
+
+function attachListMouseOnClick () {
+    const curIndex = this.getAttribute("data-value-index");
+    const curItem = this.getAttribute("data-value");
+    setInputSelection(curItem, curIndex);
+    if (debug) { debugUpdateCurrentInfo(curIndex, curItem); }
+} // END attachListMouseOnClick
+
+function attachListMouseOver () {
+  if (document.getElementsByClassName("highlight").length > 0) {
+    [].forEach.call(document.getElementsByClassName("highlight"), function(el) {
+      el.classList.remove("highlight");
+    });
   }
-}
+  const curIndex = this.getAttribute("data-value-index");
+  const curItem = this.getAttribute("data-value");
+  this.classList.add("highlight");
+  document.getElementById("js-dbprintersList").setAttribute("data-current-highlight-index", curIndex)
+  if (debug) { debugUpdateCurrentInfo(curIndex, curItem); }
+} // END attachListMouseOver
 
-function showItems(parobject) {
-  let itemsList = parobject.dropdownlist.getElementsByTagName("a");
-  let itemsListLength = itemsList.length;
-  for (let i = 0; i < itemsListLength; i++) {
-    itemsList[i].style.display = "block";
-    itemsList[i].style.background = "dodgerblue";
+function attachOpenDialogMouseOnClick (event) {
+  // const curIndex = this.getAttribute("data-value-index");
+  // const curItem = this.getAttribute("data-value");
+  event.preventDefault();
+  event.stopPropagation();
+  event.cancelBubble = true;
+
+  openOutputDestination();
+  
+  // if (debug) { debugUpdateListCountInfo(`${curItem} (all list)`); }
+  // if (debug) { debugUpdateCurrentInfo(curIndex, curItem); }
+} // END attachOpenDialogMouseOnClick
+
+
+
+function debugUpdateListCountInfo (droplistLength) {
+  document.getElementById("field-droplength").innerText = droplistLength;
+} // END debugUpdateListCountInfo
+
+
+function debugUpdateCurrentInfo (curIdx, curHighlight) {
+  document.getElementById("field-selected").innerText = `[${document.getElementById("cb_identifier").getAttribute("data-current-selection-index")}] ${document.getElementById("cb_identifier").getAttribute("data-current-selection")}`;
+  document.getElementById("field-highlight").innerText = `[${curIdx}] ${curHighlight}`;
+} // END debugUpdateCurrentInfo
+
+// END UTILS
+
+
+
+
+
+
+// ========================================================================
+// === Attach Listeners to Overlay Mask ===
+document.getElementById("js-overlayMask").addEventListener("click", function (evt) {
+  resetDropList();
+});
+
+document.getElementById("js-overlayMask").addEventListener("mouseover", function (evt) {
+  // Do Mouseover to remove highlight
+  //removeHighlight();
+  if (document.getElementById("cb_identifier").getAttribute("data-current-selection") !== undefined) {
+    // assignSelectedHighlight();
   }
-}
-
-function hideItems2(parobject) {
-  let itemsList = parobject.dropdownlist.getElementsByTagName("a");
-  let itemsListLength = itemsList.length;
-  for (let i = 0; i < itemsListLength; i++) {
-    itemsList[i].style.display = "block";
-    itemsList[i].style.background = "greenyellow";
+  const cbDroplist = document.getElementById("js-dbprintersList");
+  const currentSelection = document.getElementById("cb_identifier").getAttribute("data-current-selection-index");
+  const currentHighlight = cbDroplist.getAttribute("data-current-highlight-index");
+  const quickListMode = cbDroplist.getAttribute("data-quicklist-mode");
+  if (currentSelection !== currentHighlight || quickListMode === "false") {
+    removeHighlight();
   }
-}
+});
 
-function hideItems(parobject) {
-  let itemsList = parobject.dropdownlist.getElementsByTagName("a");
-  let itemsListLength = itemsList.length;
-  for (let i = 0; i < itemsListLength; i++) {
-    itemsList[i].style.display = "block";
-    itemsList[i].style.background = "tomato";
+document.getElementById("js-overlayMask").addEventListener("mousemove", function (evt) {
+  //removeHighlight();
+  if (document.getElementById("cb_identifier").getAttribute("data-current-selection") !== undefined) {
+    // assignSelectedHighlight();
   }
-}
+  const cbDroplist = document.getElementById("js-dbprintersList");
+  const currentSelection = document.getElementById("cb_identifier").getAttribute("data-current-selection-index");
+  const currentHighlight = cbDroplist.getAttribute("data-current-highlight-index");
+  const quickListMode = cbDroplist.getAttribute("data-quicklist-mode");
+  if (currentSelection !== currentHighlight || quickListMode === "false") {
+    removeHighlight();
+  }
+}); 
+// End Overlay
 
+
+// ========================================================================
 // === GET MOCKED DATA === //
+// ========================================================================
 async function getData(data) {
   let dbprintersList = document.getElementById("js-dbprintersList");
   let isQuickList = dbprintersList.getAttribute('data-quicklist-mode') === "false" ? false : true;
+  
   if (isQuickList === true) {
-    // dbprintersListRawData.style.display = "none";
+    // do something when it is just the quick list
   }
 
   let json = await fetch(data);
@@ -227,6 +468,7 @@ async function getData(data) {
   comboboxData.map((e) => {
     if (e.type === "printers") {
       e.payload.map((el) => {
+        // --- QUICK LIST - defaults and recommended ---
         if (isDefaultDevice && el.hasOwnProperty("defaultedData")) {
           el.defaultedData.map((elem, i) => {
             // POPULATE the "QuickList" workflow and user default options in the combobox
@@ -235,6 +477,8 @@ async function getData(data) {
             selectOption.setAttribute("data-printers-quicklist","");
             selectOption.setAttribute("data-value", optValue);
             selectOption.setAttribute("data-value-index", quickCounter);
+            selectOption.addEventListener("click", attachListMouseOnClick);
+            selectOption.addEventListener("mouseover", attachListMouseOver);        
             selectOption.innerHTML = elem;
             if (i === 0) {
               // set the value to have suggested device be auto-selected 
@@ -254,35 +498,37 @@ async function getData(data) {
             quickCounter++;
           });
         }
-
+        // --- QUICK LIST - favorites & last used ---
         if (!isNewUser && el.hasOwnProperty("preConfiguredData")) {
           el.preConfiguredData.map((elem, i) => {
-            // POPULATE the "QuickList" favorites and recently used options in the combobox
             let selectOption = document.createElement("a");
             selectOption.setAttribute("data-printers-quicklist","");
             selectOption.setAttribute("data-value", elem);
             selectOption.setAttribute("data-value-index", quickCounter);
+            selectOption.addEventListener("click", attachListMouseOnClick);
+            selectOption.addEventListener("mouseover", attachListMouseOver);
             selectOption.innerHTML = elem;
             dataObject.preConfiguredList.push(selectOption);
             dbprintersList.append(selectOption);
             quickCounter++;
           });
         }
-
+        // --- ALL LIST ---
         if (el.hasOwnProperty("rawData")) {
           let dbprintersSelect = (!isNewDBPrint) ? document.getElementById("js-dbprintersSelect") : undefined;
           el.rawData.map((elem) => {
-            // POPULATE all the "All List" of options in the combobox or select
             let selectOption = isNewDBPrint ? document.createElement("a") : document.createElement("option");
             selectOption.setAttribute("data-printers-alllist","");
             selectOption.innerHTML = elem;
             if (isNewDBPrint) {
+              // POPULATE the combobox
               selectOption.setAttribute("data-value", elem);
               selectOption.setAttribute("data-value-index", rawCounter);
+              selectOption.addEventListener("click", attachListMouseOnClick);
+              selectOption.addEventListener("mouseover", attachListMouseOver);          
               dataObject.rawList.push(selectOption);
-              //>> selectOption.style.display = "none";
-              //>> dbprintersList.append(selectOption);
             } else {
+              // POPULATE the old school select
               selectOption.value = elem;
               if (isDefaultDevice && elem === defaultDeviceStr) {
                 selectOption.selected = true;
@@ -295,48 +541,46 @@ async function getData(data) {
         }
       });
     }
-
-    // POPULATE all Raw Options in the combobox
-    if (e.type === "printers") {
-      e.payload.map((el) => {
-        // extra step
-      });
-    }
-
+    //
+    // INSERT THE OUTPUT DESTINATION DIALOG OPTION
     // document.getElementById(
     //   "js-dbprintersList-outputDestination"
     // ).style.display = (dialog === true) ? "block" : "none";
+    
+    setTimeout(function () {
+      if (debug) { debugUpdateListCountInfo(`${quickCounter} (initial list)`); }
+    }, 100);
   });
 }
-// === GO GET THE OPTIONS DATA === //
 getData(`data-${clientSize}-site.json`);
-// End of Custom code
+// END Get Mocked Data
 
 
-document.getElementById("js-overlayMask").addEventListener("click", function (evt) {
-  resetDropList();
-});
 
 
-/* 
-	ComboBox Object 
-	http://www.zoonman.com/projects/combobox/
-
-	Copyright (c) 2011, Tkachev Philipp
-	All rights reserved.
-	BSD License
-*/
-ComboBox = function (object_name) {
-  // Custom code - this setTimeout is added to wait for the async function to load the data
+/* ========================================================================
+ * ComboBox Object 
+ * http://www.zoonman.com/projects/combobox/
+ * ========================================================================
+ * Copyright (c) 2011, Tkachev Philipp
+ * All rights reserved.
+ * BSD License
+ * ========================================================================
+ */
+ComboBox = function (object_name, debug_mode) {
+  // --- modified with Custom Code for the purpose of this prototype ---
+  // This setTimeout is added to wait for the async function to load the data
   setTimeout(function () {
     // Edit element cache
     this.edit = document.getElementById(object_name);
-    // Items Container
+    // Get list of things (divs) that follow the Input 
     var ddlist = document
       .getElementById(object_name)
       .parentNode.getElementsByTagName("div");
+    // Dropdown List Container
+    this.droplistcontainer = ddlist[0]; // same as document.getElementById("js-dbprintersList")
+    // Actual List of Options
     this.dropdownlist = ddlist[0].getElementsByTagName("a");
-    //this.dropdownlist = document.getElementById("js-dbprintersList").getElementsByTagName("a");
     // Selected Item
     this.selecteditem = ( this.edit.getAttribute("data-current-selection").length < 1 ) ? undefined : this.edit.getAttribute("data-current-selection");
     // Selected Item Index
@@ -349,11 +593,16 @@ ComboBox = function (object_name) {
     this.visiblecount = this.dropdownlist.length;
     // another arrow helper
     this.startindexover = true;
+    // another arrow helper
+    this.getfreshalllist = true;
+    // Debug mode
+    this.debug = debug_mode;
     // Closure Object
     const parobject = this;
     // Picker
     const pick = document.getElementById(object_name).parentNode.getElementsByTagName("span");
 
+    debug = parobject.debug;
     
     function resetIndexes () {
       parobject.dropdownlist = document.getElementById("js-dbprintersList").getElementsByTagName("a");
@@ -367,12 +616,13 @@ ComboBox = function (object_name) {
     // CHEVRON -- SHOW + HIDE LISTBOX when picker icon is clicked
     pick[0].onclick = function () {
       let cbInput = document.getElementById("cb_identifier");
-      cbInput.getAttribute("data-list-is-open") === "false" ?
-        toggleDroplist("open") && cbInput.focus() && cbInput.select() :
-        toggleDroplist("close") && resetDropList() && resetIndexes();
-      // console.log(1);
-      // parobject.edit.focus();
-      // cbInput.focus() && cbInput.select()
+      setTimeout(function () {
+        cbInput.getAttribute("data-list-is-open") === "false" ?
+          toggleDroplist("open") && cbInput.focus() && cbInput.select() :
+          toggleDroplist("close") && resetDropList() && resetIndexes();
+        // parobject.edit.focus();
+        // cbInput.focus() && cbInput.select()
+      }, 10);
     };
     // FOCUS -- SHOW LISTBOX -- Show Items when input receives focus
     this.edit.onfocus = function () {
@@ -391,6 +641,8 @@ ComboBox = function (object_name) {
       }
     }; // End onblur
     var allowLoose = true;
+    // ==========================================================
+    // DECIDE IF WE STILL NEED THIS PART
     // // IE fix
     // parobject.dropdownlist.onmousedown = function (event) {
     //   allowLoose = false;
@@ -402,128 +654,141 @@ ComboBox = function (object_name) {
     //   }, 150);
     //   return false;
     // };
+    // ==========================================================
+
+
+
+
+
 
 
     // ====================================================================  
     // REUSABLES
-    // ====================================================================  
+    // ====================================================================
+    let dlc = parobject.droplistcontainer;
     let ddl = parobject.dropdownlist;
     let vc = parobject.visiblecount;
     let cii = parobject.currentitemindex;
     let ci = parobject.currentitem;
-
-
-    // ====================================================================
-    // MOUSE NAVIGATION 
-    // ====================================================================
-    for (var i = 0; i < ddl.length; i++) {
-      // Binding Click Event
-      ddl[i].onclick = function (e) {
-        cii = parobject.currentitemindex = e.currentTarget.getAttribute("data-value-index");
-        ci = parobject.currentitem = e.currentTarget.getAttribute("data-value");
-        setInputSelection(ci, cii);
-        updateTestingInfo(vc, cii, ci);
-      }; // End onclick
-
-      // Binding OnMouseOver Event
-      ddl[i].onmouseover = function (e) {
-        if (document.getElementsByClassName("highlight").length > 0) {
-          [].forEach.call(document.getElementsByClassName("highlight"), function(el) {
-            el.classList.remove("highlight");
-          });
-        }
-        cii = parobject.currentitemindex = e.currentTarget.getAttribute("data-value-index");
-        ci = parobject.currentitem = e.currentTarget.getAttribute("data-value");
-        e.currentTarget.classList.add("highlight");
-        updateTestingInfo(vc, cii, ci);
-      }; // End onmouseover
-    }
-
-
+    let hii = parobject.droplistcontainer.hasAttribute("data-current-highlight-index") ? parobject.droplistcontainer.getAttribute("data-current-highlight-index") : undefined;
 
     // ====================================================================
     // ONKEYDOWN - NAVIGATION WITH KEYBOARD
     // ====================================================================
     this.edit.onkeydown = function (e) {
       e = e || window.event;
+      hii = parobject.droplistcontainer.hasAttribute("data-current-highlight-index") ? parobject.droplistcontainer.getAttribute("data-current-highlight-index") : undefined;
 
       if (parobject.startindexover) {
-        ddl = parobject.dropdownlist = document.getElementById("js-dbprintersList").getElementsByTagName("a");
+        dlc = parobject.droplistcontainer = document.getElementById("js-dbprintersList");
+        ddl = parobject.dropdownlist = dlc.getElementsByTagName("a");
         vc = parobject.visiblecount = ddl.length;
         cii = parobject.currentitemindex = ( document.getElementById(object_name).getAttribute("data-current-selection-index").length < 1 ) ? undefined : document.getElementById(object_name).getAttribute("data-current-selection-index");
         ci = parobject.currentitem = ( document.getElementById(object_name).getAttribute("data-current-selection").length < 1 ) ? undefined : document.getElementById(object_name).getAttribute("data-current-selection");
+        hii = parobject.droplistcontainer.hasAttribute("data-current-highlight-index") ? parobject.droplistcontainer.getAttribute("data-current-highlight-index") : undefined;
         parobject.startindexover = false;
       }
 
-      // PRESSING ARROW UP // or ARROW LEFT KEY e.keyCode === 37
-      if (e.keyCode === 38) {
+      // PRESSING ARROW UP
+      //if (e.keyCode === 38) {
+      if (e.key === "ArrowUp") {
         if (vc > 0) {
           e.preventDefault();
-          if (cii === undefined) {
-            for (var i = 0; i < vc; i++) {
-              ddl[i].classList.remove("highlight");
-            }
+          if (hii !== undefined && hii !== cii) {
+            cii = hii;
+          }
+          if (cii === undefined && hii === undefined) {
+            //#for (var i = 0; i < vc; i++) {
+            //#  ddl[i].classList.remove("highlight"); // <==== this is a problem
+            //#}
+            removeHighlight();
             cii = 0;
             ci = ddl[cii].getAttribute("data-value");
             ddl[cii].classList.add("highlight");
+            dlc.setAttribute("data-current-highlight-index", cii);
+            hii = cii;
           }
           else if (cii > 0 && cii < vc) {
-            for (var i = 0; i < vc; i++) {
-              ddl[i].classList.remove("highlight");
-            }  
+            //#for (var i = 0; i < vc; i++) {
+            //#  ddl[i].classList.remove("highlight");
+            //#}
+            removeHighlight();
             cii--;
             ci = ddl[cii].getAttribute("data-value");
             ddl[cii].classList.add("highlight");
+            dlc.setAttribute("data-current-highlight-index", cii);
+            hii = cii;
           }
-          updateTestingInfo(vc, cii, ci);
+          if (debug) { debugUpdateCurrentInfo(cii, ci); }
+          if (debug) { debugUpdateListCountInfo(`${vc} (${e.key})`); }
         }        
       }
 
-      // PRESSING ARROW DOWN // or ARROW RIGHT KEY e.keyCode ===  39
-      if (e.keyCode === 40) {
+      // PRESSING ARROW DOWN
+      //if (e.keyCode === 40) {
+      if (e.key === "ArrowDown") {
         if (vc > 0) {
           e.preventDefault();
-          if (cii === undefined) {
-            for (var i = 0; i < vc; i++) {
-              ddl[i].classList.remove("highlight");
-            }  
+          if (hii !== undefined && hii !== cii) {
+            cii = hii;
+          }
+          if (cii === undefined && hii === undefined) {
+            //#for (var i = 0; i < vc; i++) {
+            //#  ddl[i].classList.remove("highlight"); // <==== this is a problem
+            //#}
+            removeHighlight();
             cii = 0;
             ci = ddl[cii].getAttribute("data-value");
             ddl[cii].classList.add("highlight");
+            dlc.setAttribute("data-current-highlight-index", cii);
+            hii = cii;
           }
           else if (cii >= 0 && cii < vc-1) {
-            for (var i = 0; i < vc; i++) {
-              ddl[i].classList.remove("highlight");
-            }  
+            //#for (var i = 0; i < vc; i++) {
+            //#  ddl[i].classList.remove("highlight");
+            //#}
+            removeHighlight();
             cii++;
             ci = ddl[cii].getAttribute("data-value");
             ddl[cii].classList.add("highlight");
+            dlc.setAttribute("data-current-highlight-index", cii);
+            hii = cii;
           }
-          updateTestingInfo(vc, cii, ci);
+          if (debug) { debugUpdateCurrentInfo(cii, ci); }
+          if (debug) { debugUpdateListCountInfo(`${vc} (${e.key})`); }
         }
       }
 
       // PRESSING HOME KEY 
-      if (e.keyCode === 36) {
-        for (var i = 0; i < vc; i++) {
-          ddl[i].classList.remove("highlight");
-        }
+      //if (e.keyCode === 36) {
+      if (e.key === "Home") {
+        //#for (var i = 0; i < vc; i++) {
+        //#  ddl[i].classList.remove("highlight");
+        //#}
+        removeHighlight();
         cii = 0;
         ci = ddl[cii].getAttribute("data-value");
         ddl[cii].classList.add("highlight");
-        updateTestingInfo(e.keyCode, cii, ci);
+        dlc.setAttribute("data-current-highlight-index", cii);
+        hii = cii;
+        if (debug) { debugUpdateCurrentInfo(cii, ci); }
+        if (debug) { debugUpdateListCountInfo(`${vc} (${e.key})`); }
       }
       
       // PRESSING END KEY 
-      if (e.keyCode === 35) {
-        for (var i = 0; i < vc; i++) {
-          ddl[i].classList.remove("highlight");
-        }
+      //if (e.keyCode === 35) {
+      if (e.key === "End") {
+        //#for (var i = 0; i < vc; i++) {
+        //#  ddl[i].classList.remove("highlight");
+        //#}
+        removeHighlight();
         cii = vc-1;
         ci = ddl[cii].getAttribute("data-value");
         ddl[cii].classList.add("highlight");
-        updateTestingInfo(e.keyCode, cii, ci);
-
+        dlc.setAttribute("data-current-highlight-index", cii);
+        hii = cii;
+        if (debug) { debugUpdateCurrentInfo(cii, ci); }
+        if (debug) { debugUpdateListCountInfo(`${vc} (${e.key})`); }
       }
     }; // END ONKEYDOWN
 
@@ -532,29 +797,24 @@ ComboBox = function (object_name) {
     // ====================================================================
     // ONKEYUP - TYPING AND SEARCHING PART
     // ====================================================================
-    this.edit.onkeyup = function (e) {    
-
-      // Custom code
-      let inputBox = e.currentTarget.value;
-      if (inputBox.length > 2 && document.getElementById("js-dbprintersList").getAttribute("data-quicklist-mode") === true) {
-        document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "false");
-        document.getElementById("js-dbprintersList-hint").innerText =
-          "Searching all...";
-        removeList("quicklist");
-      } else {
-        document.getElementById("js-dbprintersList-hint").innerText =
-          "Enter 3 characters to search all...";
-      }
-      // End of Custom code
-      // Labels "Searching all" and "enter 3 characters to search all..."
-
+    this.edit.onkeyup = function (e) {
       e = e || window.event;
+      hii = parobject.droplistcontainer.hasAttribute("data-current-highlight-index") ? parobject.droplistcontainer.getAttribute("data-current-highlight-index") : undefined;
 
       // PRESSING ENTER KEY
-      if (e.keyCode === 13) {
-        if (cii > -1) {
+      //if (e.keyCode === 13) {
+      if (e.key === "Enter") {
+        if (cii > -1 && ci !== "[open-output-dialog]") {
           setInputSelection(ci, cii);
-        } 
+          dlc.removeAttribute("data-current-highlight-index");
+          parobject.getfreshalllist = true;
+        } else if (ci === "[open-output-dialog]") {
+          // do the open dialog
+          openOutputDestination();
+          // if (debug) { debugUpdateListCountInfo(`${ci} (all list)`); }
+        }
+        e.cancelBubble = true;
+        return false;   
         // else {
         //   toggleDroplist("close");
         //   resetDropList();
@@ -562,149 +822,191 @@ ComboBox = function (object_name) {
         // }
       }
 
-
-
-
-
-      
-      /* ================================================================ 
-
-      // PRESSING ENTER KEY
-      if (e.keyCode === 13) {
-
-        if (parobject.visiblecount != 0) {
-          var upv = parobject.currentitem.innerHTML;
-          upv = upv.replace(/\<b\>/gi, "");
-          upv = upv.replace(/\<\/b\>/gi, "");
-          parobject.edit.value = upv;
-        }
-        parobject.dropdownlist.style.display = "none";
-        e.cancelBubble = true;
-        return false;
-      } else {
-        hideQuicklist(parobject);
-        parobject.dropdownlist.style.display = "block";
-        parobject.visiblecount = 0;
-        if (parobject.edit.value === "") {
-          for (var i = 0; i < parobject.listitems.length; i++) {
-            parobject.listitems[i].style.display = "block";
-            parobject.visiblecount++;
-            var pv = parobject.listitems[i].innerHTML;
-            pv = pv.replace(/\<b\>/gi, "");
-            parobject.listitems[i].innerHTML = pv.replace(/\<\/b\>/gi, "");
-          }
-        } else {
-          var re = new RegExp("(" + parobject.edit.value + ")", "i");
-          setTimeout(() => {
-            for (var i = 0; i < parobject.listitems.length; i++) {
-              
-              // Custom adjustments.
-              // When typing, the results make bold all the text in the list item, including " - suggested" for example.
-              // Fix: If the string contains "- suggested", "- default", etc; only replace the characters of the first array item.
-              
-              // original script: var pv = parobject.listitems[i].innerText;
-
-              var stringPv = parobject.listitems[i].innerText.split(" - ");
-              var pv = "";
-              var specialSetup = "";
-              if (stringPv.length > 1) {
-                pv = parobject.listitems[i].innerText.split(" - ").shift();
-                specialSetup =
-                  " - " + parobject.listitems[i].innerText.split(" - ").pop();
-              } else {
-                pv = parobject.listitems[i].innerText;
-              }
-
-              pv = pv.replace(/\<b\>/gi, "");
-              pv = pv.replace(/\<\/b\>/gi, "");
-              if (re.test(pv) && parobject.hasAttribute("data-printers-alllist")) {
-
-                // this is the non-red
-                parobject.listitems[i].style.display = "block";
-                parobject.visiblecount++;
-                parobject.listitems[i].innerHTML =
-                  pv.replace(re, "<b>$1</b>") + specialSetup;
-
-                // Custom code
-                // No matching items label
-
-                // WHY DOES THIS MATTER ???????????????
-                if (isNewUser === true) {
-                  parobject.listitems[i].style.display = "block";
-                  document.getElementById("js-dbprintersList-hint").innerText =
-                    "All that contains" + ` "${inputBox}"`;
-                }
-                // Testing here -- remove when done 
-                else {
-                   parobject.listitems[i].style.display = "block";
-                   document.getElementById("js-dbprintersList-hint").innerText =
-                     "******This is that other one" + ` "${inputBox}"`;
-                }
-                // End of Custom code
-
-              } else {
-                // THIS IS THE FILTER REMOVAL WHEN SEARCHING
-                // parobject.listitems[i].style.background = "red";
-                parobject.listitems[i].style.display = "none";
-              }
-            }
-
-            // Custom code
-            // No matching items label
-            let itemsList = document
-              .getElementById("js-dbprintersList")
-              .getElementsByTagName("a");
-            let itemsListLength = itemsList.length;
-            let counter = 0;
-            for (let i = 0; i < itemsListLength; i++) {
-              if (itemsList[i].style.display === "none") counter++;
-            }
-            if (counter === itemsListLength) {
-              document.getElementById("js-dbprintersList-hint").innerText =
-                "No matching items for" + ` "${inputBox}"`;
-            }
-            // End of Custom code
-
-          }, loadDelay);
-        }
-      }
-
-      ================================================================ */
-      // let inputComboboxLength = document.getElementById("cb_identifier").value.length;
-      // For the new user, when he/she deletes the entry, the items should be hidden
-
       // PRESSING ESCAPE KEY
-      if (e.keyCode === 27) {
-        document.getElementById("cb_identifier").blur();
+      //else if (e.keyCode === 27) {
+      else if (e.key === "Escape") {
+        dlc.removeAttribute("data-current-highlight-index");
+        e.currentTarget.blur();
         document.body.focus();
         resetDropList();
-      }      
+      }
 
       // PRESSING TAB KEY
-      if (e.keyCode === 9) {
+      //else if (e.keyCode === 9) {
+      else if (e.key === "Tab") {
         // Let existing onFocus Handler manage instead
         e.stopPropagation();
         e.preventDefault(); 
-      }      
+      }
 
       // PRESSING DELETE KEY
-      if (e.keyCode === 8) {
-        let inputComboboxLength = document.getElementById("cb_identifier").value.length;
-        document.getElementById("js-dbprintersList-hint").innerText = inputComboboxLength;
+      //else if (e.keyCode === 8 || e.keyCode === 46) {
+      else if (e.key === "Backspace" || e.key === "Delete") {
+        
+        // const cbDroplist = document.getElementById("js-dbprintersList");   
+        let inputComboboxLength = e.currentTarget.value.length;
+        if (inputComboboxLength >= 3) {
+
+          // ===================================
+          // switch hint message to searching
+          // swap list
+          // do search/filter
+          // update hint t0 all results
+          // ===================================
+
+          removeList();         
+          document.getElementById("js-dbprintersList-hint").innerText = `Printers that contain \"${e.currentTarget.value}\"`;
+          vc = parobject.visiblecount = filterAllList(e.currentTarget.value);
+          removeHighlight();
+          cii = parobject.currentitemindex = undefined;
+          ci = parobject.currentitem = undefined;        
+          dlc.removeAttribute("data-current-highlight-index");
+          hii = undefined;
+          if (debug) { debugUpdateListCountInfo(`${vc} (filtered list)`); }
+
+        }
         if (inputComboboxLength < 3) {
-          resetListHint();        
+          if (dlc.getAttribute("data-quicklist-mode") === "false") {
+            removeHighlight();
+            cii = parobject.currentitemindex = undefined;
+            ci = parobject.currentitem = undefined;
+            dlc.removeAttribute("data-current-highlight-index");
+            hii = undefined;
+            removeList();
+            //##setTimeout(function () {
+              resetQuickList();
+              if ( document.getElementById(object_name).getAttribute("data-current-selection") !== undefined ) {
+                assignSelectedHighlight(); 
+                cii = parobject.currentitemindex = document.getElementById(object_name).getAttribute("data-current-selection-index");
+                ci = parobject.currentitem = document.getElementById(object_name).getAttribute("data-current-selection");
+                hii = dlc.getAttribute("data-current-highlight-index");
+              } else {
+                removeHighlight();
+                cii = parobject.currentitemindex = undefined;
+                ci = parobject.currentitem = undefined;
+                dlc.removeAttribute("data-current-highlight-index");
+                hii = undefined;
+              }
+            //##}, 500);
+          }
+          dlc.setAttribute("data-quicklist-mode", "true");  
+          resetListHint();
         }
         if (inputComboboxLength === 0) {
-          document.getElementById("cb_identifier").setAttribute("data-current-selection", "");
-          document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
+          e.currentTarget.setAttribute("data-current-selection-index", "");
+          e.currentTarget.setAttribute("data-current-selection", "");
+          dlc.setAttribute("data-quicklist-mode", "true");
           removeHighlight();
+          removeSelectedHighlight();
+          dlc.removeAttribute("data-current-highlight-index");
+          cii = parobject.currentitemindex = undefined;
+          ci = parobject.currentitem = undefined;        
+          resetListHint();       
           resetQuickList();
-          // hideAllList(parobject);
         }
       }
 
+      // PRESSING CLEAR KEY
+      //else if (e.keyCode === 12 {
+      else if (e.key === "Clear") {
+        e.currentTarget.setAttribute("data-current-selection-index", "");
+        e.currentTarget.setAttribute("data-current-selection", "");
+        document.getElementById("js-dbprintersList").setAttribute("data-quicklist-mode", "true");
+        removeHighlight();
+        removeSelectedHighlight();
+        dlc.removeAttribute("data-current-highlight-index");
+        cii = parobject.currentitemindex = undefined;
+        ci = parobject.currentitem = undefined;
+        resetQuickList();
+      }
+
+      else if (e.key === "Shift" || e.key === "ShiftLeft" || e.key === "ShiftRight") {
+        //e.cancelBubble = true;
+        if (debug) { document.getElementById("field-delay").innerText = e.key; }
+      }
+
+      // PRESSING ALL OTHER KEYS
+      //else if (e.keyCode !== 38 && e.keyCode !== 40 && e.keyCode !== 36 && e.keyCode !== 35) {
+      else if (e.key !== "ArrowUp" && e.key !== "ArrowDown" && e.key !== "Home" && e.key !== "End" && e.key !== "Shift" && e.key !== "ShiftLeft" && e.key !== "ShiftRight" ) {
+
+
+
+
+        let inputBoxText = e.currentTarget.value;        
+        if (inputBoxText.length >= 3) {
+          // ddl.setAttribute("data-quicklist-mode", "false");
+
+          // ===============================
+          // switch hint message to searching
+          // swap list
+          // do search/filter
+          // update hint t0 all results
+          // ===============================
+
+          // resetListHint();
+          removeList();
+
+          // Move this into the sequence with filtering
+          document.getElementById("js-dbprintersList-hint").innerText = 
+            "Searching printers...";
+
+          if (parobject.getfreshalllist || document.getElementById("js-dbprintersList").getAttribute("data-quicklist-mode") === "true") {
+            // First time getting 3 letters
+            const loadDelay = (clientSize === "large") ? 1200 : 600;
+            //removeList();
+            dlc.removeAttribute("data-current-highlight-index");
+            cii = parobject.currentitemindex = undefined;
+            ci = parobject.currentitem = undefined;
+            //##setTimeout(function () {
+              //**** resetAllList();
+              parobject.getfreshalllist = false;
+              //##setTimeout(function () {
+                document.getElementById("js-dbprintersList-hint").innerText = 
+                  `Printers that contain \"${inputBoxText}\"`;
+
+                // ============================================================
+                removeList();
+                vc = parobject.visiblecount = filterAllList(parobject.edit.value);
+
+                removeHighlight();
+                cii = parobject.currentitemindex = undefined;
+                ci = parobject.currentitem = undefined;
+                hii = undefined;
+                dlc.removeAttribute("data-current-highlight-index");
+    
+                if (debug) { debugUpdateListCountInfo(`${vc} (filtered list)`); }
+                if (debug) { document.getElementById("field-delay").innerText = "(Filter: first 3 letters)"; }
+                // ============================================================
+
+
+              //##}, 25);
+            //##}, loadDelay);
+          } else {
+            // Second time and/or More than 3 letters
+
+            //##setTimeout(function () {
+              document.getElementById("js-dbprintersList-hint").innerText = 
+                `Printers that contain \"${inputBoxText}\"`;
+            //##}, 50);
+
+            // ============================================================
+            removeList();
+            vc = parobject.visiblecount = filterAllList(parobject.edit.value);
+
+            removeHighlight();
+            cii = parobject.currentitemindex = undefined;
+            ci = parobject.currentitem = undefined;
+            hii = undefined;
+            dlc.removeAttribute("data-current-highlight-index");
+
+            if (debug) { debugUpdateListCountInfo(`${vc} (filtered list)`); }
+            if (debug) { document.getElementById("field-delay").innerText = "(Filter: more than 3 letters)"; }
+            // ============================================================
+
+          }
+        }
+      }
     }; // END ONKEYUP
     
-
-  }, 100); // End custom code setTimeOut
+  }, 100);
 };
