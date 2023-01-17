@@ -344,14 +344,14 @@ const popupCenter = ({url, target, w, h}) => {
 
 function oldOpenOutputDestination (e) {
   window.open(
-    "./outputDestionationDialog/outputDestination.html",
+    "./outputDestinationDialog/outputDestination.html",
     "_blank",
     "menubar=1,resizable=0,width=691,height=679"
   );
 } // END openOutputDestination
 
 function openOutputDestination (e) {
-  popupCenter({url: './outputDestionationDialog/outputDestination.html', target: "_blank", w: 691, h: 679});
+  popupCenter({url: './outputDestinationDialog/outputDestination.html', target: "_blank", w: 691, h: 680});
 } // END openOutputDestination
 
 

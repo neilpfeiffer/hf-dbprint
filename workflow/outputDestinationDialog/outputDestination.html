@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Output Destination</title>
+    <link rel="stylesheet" href="outputDestination.css" />
+  </head>
+  <body id="js-body" class="outputdialog">
+    	<!-- BUTTON 1 -->
+			<button
+				id="btn-output-okay"
+      	class="btn-okay dbprint-button"
+				tabindex="1"
+			>
+				OK
+			</button>
+
+    	<!-- BUTTON 2 -->
+			<button
+				id="btn-output-cancel"
+      	class="btn-cancel dbprint-button"
+				tabindex="2"
+			>
+				Cancel
+			</button>
+      <script type="text/javascript" charset="utf-8">
+        document.getElementById("btn-output-okay").addEventListener("click", function (evt) {
+          const dialogBody = document.querySelector(".outputdialog");
+          this.style.cursor = "wait";
+          dialogBody.style.cursor = "wait";
+          setTimeout(() => {
+            window.open('','_self').close();
+          }, "600")
+        });
+        document.getElementById("btn-output-cancel").addEventListener("click", function (evt) {
+          const dialogBody = document.querySelector(".outputdialog");
+          this.style.cursor = "wait";
+          dialogBody.style.cursor = "wait";
+          setTimeout(() => {
+            window.open('','_self').close();
+          }, "200")
+        });
+      </script>
+  </body>
+</html>

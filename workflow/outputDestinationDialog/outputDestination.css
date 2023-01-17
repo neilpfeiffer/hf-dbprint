@@ -1,0 +1,109 @@
+html,
+body {
+  word-wrap: break-word;
+  word-break: break-word;
+  font-family: Tahoma,Geneva,Verdana,Trebuchet MS,sans-serif;
+  font-size: 75%;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior: none;
+  outline: none;
+  height: 679px;
+  width: 691px;
+  background-color: #f0f0f0;
+  padding: 0;
+  margin: 0;
+}
+
+
+.center {
+  background-color: #ddd;
+  height: 679px;
+  width: 691px;
+  margin: 0;
+  position: absolute;
+  padding: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 3px 10px 5px rgb(0, 0, 0);
+  /* border-radius: 6px; */
+}
+
+
+.bodyBackround {
+  background-color: black;
+  background-image: url(./outputDestination.png);
+  background-repeat: no-repeat;
+  background-size: 700px;
+}
+
+.outputdialog {
+  height: 679px;
+  width: 691px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #f0f0f0;
+  background-image: url(./outputdialog@2x.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size:100%;
+  background-size:cover;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+
+.btn-okay {
+  width: 73px;
+  left: 515px;
+  position: absolute;
+  top: 636px;  
+}
+
+.btn-cancel {
+  width: 73px;
+  left: 601px;
+  position: absolute;
+  top: 636px;  
+}
+
+
+/* -- BUTTONS -- */
+.dbprint-button {
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.41666667;
+  font-family: Tahoma,Geneva,Verdana,Trebuchet MS,sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: .25rem .83333333rem;
+  border: 1px solid #64696c;
+  display: inline-block;
+  margin: 0;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background: -webkit-gradient(linear,left top,left bottom,from(#f4f4f4),to(#dedfe0));
+  background: -moz-linear-gradient(#f4f4f4,#dedfe0);
+  background: linear-gradient(#f4f4f4,#dedfe0);
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.dbprint-button:hover {
+  background: -webkit-gradient(linear,left top,left bottom,from(#f4f4f4),to(#b2b5b6));
+  background: -moz-linear-gradient(#f4f4f4,#b2b5b6);
+  background: linear-gradient(#f4f4f4,#b2b5b6);
+}
+
+.dbprint-button:active {
+  outline: 0;
+  background: -webkit-gradient(linear,left top,left bottom,from(#f4f4f4),to(#64696c));
+  background: -moz-linear-gradient(#f4f4f4,#64696c);
+  background: linear-gradient(#f4f4f4,#64696c);
+}

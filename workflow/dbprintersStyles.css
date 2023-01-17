@@ -137,6 +137,14 @@ div.overlay-mask {
   width: 214px;
 }
 
+.dbprint-select:focus,
+.dbprint-select:focus-visible {
+  /* 
+  outline:rgb(36, 91, 255) 2px solid;
+  outline-offset: 4px;
+  */
+}
+
 /* -- BUTTON Location -- */
 .location-two {
   /* height: 34px; */
