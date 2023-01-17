@@ -873,7 +873,7 @@ ComboBox = function (object_name, debug_mode) {
             dlc.removeAttribute("data-current-highlight-index");
             hii = undefined;
             removeList();
-            //##setTimeout(function () {
+            setTimeout(function () {
               resetQuickList();
               if ( document.getElementById(object_name).getAttribute("data-current-selection") !== undefined ) {
                 assignSelectedHighlight(); 
@@ -887,7 +887,7 @@ ComboBox = function (object_name, debug_mode) {
                 dlc.removeAttribute("data-current-highlight-index");
                 hii = undefined;
               }
-            //##}, 500);
+            }, 800);
           }
           dlc.setAttribute("data-quicklist-mode", "true");  
           resetListHint();
@@ -957,10 +957,10 @@ ComboBox = function (object_name, debug_mode) {
             dlc.removeAttribute("data-current-highlight-index");
             cii = parobject.currentitemindex = undefined;
             ci = parobject.currentitem = undefined;
-            //##setTimeout(function () {
+            setTimeout(function () {
               //**** resetAllList();
               parobject.getfreshalllist = false;
-              //##setTimeout(function () {
+              setTimeout(function () {
                 document.getElementById("js-dbprintersList-hint").innerText = 
                   `Printers that contain \"${inputBoxText}\"`;
 
@@ -979,8 +979,8 @@ ComboBox = function (object_name, debug_mode) {
                 // ============================================================
 
 
-              //##}, 25);
-            //##}, loadDelay);
+              }, 25);
+            }, loadDelay);
           } else {
             // Second time and/or More than 3 letters
 
@@ -1010,3 +1010,22 @@ ComboBox = function (object_name, debug_mode) {
     
   }, 100);
 };
+
+
+
+// TARGET USER SELECTIONS
+/*
+SOCS/SNCS (aka Small,Old/New,Configured,Selected): fh_roc_2fl_zb -default
+SOCNS/SNCNS (aka Small,Old/New,Configured,Not Selected): picu_3f_3500_1 (recent)
+SNNCNS/SONCNS (aka Small,Old/New,Not Configured,Not Selected): surg_admin (low on the list)
+*/
+/*
+LOCS/LNCS (aka Large,Old/New,Configured,Selected): bh_0130_rx_one -default
+LOCNS/LNCNS (aka Large,Old/New,Configured,Not Selected): mc_0268_rx_cpp4 (recent)
+LNNCNS/LONCNS (aka Large,Old/New,Not Configured,Not Selected): sg_0004_rx_main (low on the list)
+*/
+/*
+Here are the UserZoom review links:
+Small: https://preview2.userzoom.com/mpaap/MTAgQzU0MDNTNDQ1NyAg/2
+Large: https://preview2.userzoom.com/mpaap/MTAgQzU0MDNTNDQ1OCAg/1
+*/
