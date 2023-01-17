@@ -23,8 +23,10 @@ body {
 .hftest-container,
 .hftest-container-testcomplete {
   background-color: #ddd;
-  height: 840px;
-  width: 1580px;
+  /* height: 840px;
+  width: 1580px; */
+  height: 810px;
+  width: 1540px;
   margin: 0;
   position: absolute;
   padding: 0;
@@ -32,16 +34,33 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 0 3px 10px 5px rgb(0, 0, 0);
-  border-radius: 6px;
+  /* border-radius: 6px; */
 }
 
 .hftest-container {
-  background-color: #ddd;
+  height: 810px;
+  width: 1540px;
+  background-color: #f0f0f0; /*#ddd;*/
+  background-image: url(images/freyjune_print_1540x810@2x.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size:100%;
+  background-size:cover;
 }
 
 .hftest-container-testcomplete {
-  background-color: #888;
+  height: 810px;
+  width: 1540px;
+  background-color: #f0f0f0; /*#888;*/
+  background-image: url(images/freyjune_1540x810@2x.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size:100%;
+  background-size:cover;
 }
+
+
+
 
 
 
@@ -75,7 +94,9 @@ div.overlay-mask {
   position: relative;
 }
 
-.location-one {
+/* -- COMBOBOX Location -- */
+
+.location-one--hold {
   /* height: 46px; */
   width: 180px;
 
@@ -97,17 +118,30 @@ div.overlay-mask {
   top: 320px;
 }
 
+/* -- COMBOBOX Location -- */
+.location-one {
+  /* height: 46px; */
+  width: 216px;
+  left: 904px;
+  position: absolute;
+  top: 476px;
+}
+
 .dbprint-select {
   z-index: 9999;
+  margin-top: 2px;
+  border-radius: 0;
+  border: 1px solid #797979;
+  width: 214px;
 }
 
 /* -- BUTTON Location -- */
 .location-two {
   /* height: 34px; */
-  width: 180px;
-  left: 820px;
+  width: 233px;
+  left: 894px;
   position: absolute;
-  top: 490px;
+  top: 707px;
 }
 
 

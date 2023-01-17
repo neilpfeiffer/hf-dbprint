@@ -17,11 +17,11 @@ div.combobox {
 div.combobox div.dropdownlist {
   display: none;
   box-sizing: border-box;
-  width: 160%;
-  border: solid 1px #cbcbcb;
+  width: 145%;
+  border: solid 1px #9c9c9c; /*#cbcbcb;*/
   background-color: #fff;
   height: auto;
-  max-height: 359px; /*339px;*/
+  max-height: 307px; /*339px;*/ /*359px;*/
   overflow-x: auto;
   overflow-y: scroll;
   overscroll-behavior: none;
@@ -63,7 +63,7 @@ div.combobox .dropdownlist a {
   height: auto;
   line-height: 1.1666666667;
   cursor: default;
-  padding: 3px 5px 3px;
+  padding: 2px 5px 2px;
 }
 
 /*
@@ -116,7 +116,7 @@ input {
 div.combobox input.inputCombobox {
   /* float: left;
   width: 92.6%; */
-  border: solid 1px #ccc;
+  border: solid 1px #797979; /* #ccc; */
   box-sizing: border-box;
   /* flex: 1 1 auto; */
   height: 25px;
@@ -145,7 +145,8 @@ div.combobox input.inputCombobox[data-list-is-open=true] {
 
 div.combobox span.iconChevron {
   background: #eee;
-  border: solid 1px #ccc;
+  border: solid 1px #797979; /* #ccc */
+  border-left-color: #c9c9c9;
   /* border-left: none; */
   cursor: pointer;
   /* flex: 0 0 20px; */
